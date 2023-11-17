@@ -46,7 +46,7 @@ def random_strategy(player, external_assets, adj_matrix):
 
 def max_incoming_payment_strategy(player, external_assets, adj_matrix):
     incoming_payment = np.squeeze(adj_matrix[:, player])
-    if external_assets[player] > incoming_payment:
+    if external_assets[player] > max(incoming_payment):
         return [np.argmax(incoming_payment)]
     else:
         return []
@@ -71,7 +71,7 @@ def max_incoming_payment_greedy_strategy(player, external_assets, adj_matrix):
 def heuristic_belief_strategy(player, external_assets, adj_matrix, mu=0, sigma=10, discount=0.8):
     noisy_external_assets = external_assets + np.random.normal(mu, sigma, len(external_assets))
     noisy_external_assets[noisy_external_assets < 0] = 0
-    print(noisy_external_assets)
+    # print(noisy_external_assets)
     liabilities = np.squeeze(adj_matrix[player, :])
     incoming_payment = np.squeeze(adj_matrix[:, player])
     noisy_estimate = noisy_external_assets * discount + liabilities

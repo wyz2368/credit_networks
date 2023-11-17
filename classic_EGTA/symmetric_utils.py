@@ -64,8 +64,8 @@ def find_pure_equilibria(reduced_game):
     return equilibria
 
 # game = {}
-# game[(2, 0)] = [1, 1]
+# game[(2, 0)] = [1, None]
 # game[(1, 1)] = [0, 0]
-# game[(0, 2)] = [1, 1]
+# game[(0, 2)] = [None, 1]
 #
 # print(find_pure_equilibria(game))

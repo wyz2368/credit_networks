@@ -1,6 +1,6 @@
 import numpy as np
 from scipy import optimize
-from net_generator import load_pkl, save_pkl
+from classic_EGTA.net_generator import load_pkl, save_pkl
 
 def clearing(external_asset, adj_m, ALPHA, BETA):
     bank_number = len(adj_m)  # the number of banks in the financial network

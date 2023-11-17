@@ -7,23 +7,21 @@ import numpy as np
 from gymnasium.spaces import MultiBinary, Box
 
 from pettingzoo import ParallelEnv
-from pettingzoo.utils import parallel_to_aec
-from pettingzoo.utils import wrappers
+# from pettingzoo.utils import parallel_to_aec
+# from pettingzoo.utils import wrappers
+from envs.customized_wrappers import Customized_AssertOutOfBoundsWrapper
+from envs.customized_wrappers import Customized_OrderEnforcingWrapper
+from envs.customized_wrappers import parallel_to_aec
 from classic_EGTA.clearing import clearing
 
 
 def create_env(env):
-    """
-    The env function often wraps the environment in wrappers by default.
-    You can find full documentation for these methods
-    elsewhere in the developer documentation.
-    """
     env = raw_env(env)
     # this wrapper helps error handling for discrete action spaces
-    env = wrappers.AssertOutOfBoundsWrapper(env)
+    env = Customized_AssertOutOfBoundsWrapper(env)
     # Provides a wide vareity of helpful user errors
     # Strongly recommended
-    env = wrappers.OrderEnforcingWrapper(env)
+    env = Customized_OrderEnforcingWrapper(env)
     return env
 
 def raw_env(env):
@@ -131,11 +129,16 @@ class Prepayment_Net(ParallelEnv):
     def update_default_cost(self, new_default_cost):
         self.default_cost = new_default_cost
 
+
     def get_stats(self):
         return self.stats
 
+    def get_num_players(self):
+        return self.num_players
+
     def reset_stats(self):
         self.stats = []
+
 
     def apply_actions(self, adj_matrix, external_assets, actions):
         new_external_assets = external_assets[:]
