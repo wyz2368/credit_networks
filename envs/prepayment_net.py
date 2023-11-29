@@ -173,7 +173,7 @@ class Prepayment_Net(ParallelEnv):
             "Default_bank": Default_bank,
             "Recover_rate": Recover_rate
         }
-        self.stats.append(stat)
+
         return stat
 
     def clearing_current_state(self):
@@ -219,6 +219,7 @@ class Prepayment_Net(ParallelEnv):
         if all_zeros or env_truncation:
             assert np.all(external_assets >= 0)
             stat = self.clearing(external_assets=external_assets, adj_matrix=adj_m)
+            self.stats.append(stat)
 
             rewards = {}
             for i, agent in enumerate(self.agents):

@@ -32,8 +32,11 @@ def load_pkl(path):
         result = pickle.load(f)
     return result
 
-def generate_networks(n, default_frac=0.5):
-    external_asset = np.random.uniform(low=40, high=70, size=n)
+def generate_networks(n,
+                      ext_low,
+                      ext_high,
+                      default_frac=0.5):
+    external_asset = np.random.uniform(low=ext_low, high=ext_high, size=n)
     Lk_r = list(np.random.randint(low=int((n-1)/2), high=n-1, size=n))
     rand_bankrupts = np.random.randint(low=0, high=int(default_frac * n))
     shock_id = random.sample(range(n), rand_bankrupts)
@@ -53,10 +56,16 @@ def generate_networks(n, default_frac=0.5):
     num_edges = np.array(Lk_r).sum()
     return external_asset, adj, num_edges
 
-def generate_all_networks(num_instance, num_banks, save_path="./instances/networks.pkl"):
+def generate_all_networks(num_instance,
+                          num_banks,
+                          ext_low,
+                          ext_high,
+                          save_path="../instances/"):
     networks = []
     for i in range(num_instance):
-        external_asset, adj, num_edges = generate_networks(num_banks)
+        external_asset, adj, num_edges = generate_networks(num_banks,
+                                                           ext_low,
+                                                           ext_high)
         net = {}
         net["external_asset"] = external_asset
         net["adj"] = adj
@@ -64,10 +73,19 @@ def generate_all_networks(num_instance, num_banks, save_path="./instances/networ
         networks.append(net)
         # break
 
-    save_pkl(networks, save_path)
+    save_path += "networks_10banks_" + str(num_instance) + "ins_" + str(ext_low) + str(ext_high) + "ext"
+    save_pkl(networks, save_path + ".pkl")
 
 
 if __name__ == "__main__":
     generate_all_networks(num_instance=1000,
                           num_banks=10,
-                          save_path="../instances/networks_10banks_1000ins.pkl")
+                          ext_low=40,
+                          ext_high=70,
+                          save_path="../instances/")
+
+    generate_all_networks(num_instance=1000,
+                          num_banks=10,
+                          ext_low=0,
+                          ext_high=70,
+                          save_path="../instances/")

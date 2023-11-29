@@ -16,13 +16,13 @@ FLAGS = flags.FLAGS
 # Game-related
 flags.DEFINE_string("game_name", "prepayment_game", "Game name.")
 flags.DEFINE_integer("num_banks", 10, "The number of players.")
-flags.DEFINE_integer("sim_per_profile", 10, "The number of simulations per profile.")
+flags.DEFINE_integer("sim_per_profile", 4, "The number of simulations per profile.")
 flags.DEFINE_integer("reduce_num_players", 4, "The number of players in the reduced game.")
 flags.DEFINE_integer("num_rounds", 2, "The max number of time steps for truncation.")
 flags.DEFINE_float("default_cost", 0.5, "Default cost")
 flags.DEFINE_string("utility_type", "Bank_asset", "Options: Bank_asset, Bank_equity")
 flags.DEFINE_string("sample_type", "enum", "Options: random, enum")
-flags.DEFINE_string("instance_path", "./instances/networks_10banks_1000ins.pkl", "Path to instances.")
+flags.DEFINE_string("instance_path", "../instances/networks_10banks_1000ins.pkl", "Path to instances.")
 
 # General
 flags.DEFINE_string("root_result_folder", 'root_result', "root directory of saved results")
@@ -75,6 +75,11 @@ def egta_runner(env, checkpoint_dir):
     logger.info("RD Equilibria: {}".format(RD_equilibria))
     # for profile, payoffs in egta_solver.reduced_game.items():
     #     print(profile, payoffs)
+
+    # Evaluation
+    egta_solver.observe(logger)
+
+
 
 
 

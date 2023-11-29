@@ -79,6 +79,11 @@ def sample_pure_profile(mixed_strategy, num_players):
     return profile
 
 
+def is_pure(profile, num_players):
+    if len(np.where(np.array(profile) == num_players)[0]) != 0:
+        return True
+    return False
+
 
 class EGTASolver:
     def __init__(self,
@@ -99,7 +104,6 @@ class EGTASolver:
         self.reduced_profiles = create_profiles(num_players=self.reduce_num_players, num_strategies=len(self.policies))
         self.reduced_game = self.init_reduced_game(self.reduced_profiles)
         self.reduced_game_stats = self.init_reduced_game(self.reduced_profiles)
-        self.summary_stats = self.init_reduced_game_stats(self.reduced_profiles)
         self.equilibria = []
 
         # print("Begin Running EGTA.")
@@ -122,7 +126,7 @@ class EGTASolver:
         :param profiles: a list of profiles.
         """
         payoffs = {}
-        measures = ["total_assets", "total_equity", "num_default", "recover_rate"]
+        measures = ["Bank_asset", "Bank_equity", "Default_bank", "Recover_rate"]
         types = ["benefit", "neural", "harm"]
         for profile in profiles:
             payoffs[tuple(profile)] = {}
@@ -222,9 +226,11 @@ class EGTASolver:
 
             # print("self.reduced_game[tuple(reduced_profile)]:", self.reduced_game[tuple(reduced_profile)])
 
-            stats = self.get_stats()
-            self.reduced_game_stats[tuple(reduced_profile)].append(stats)
-            save_pkl(self.reduced_game_stats, path=self.checkpoint_dir + "/reduced_game_stats.pkl")
+            # Only care about pure-strategy profile.
+            if is_pure(tuple(reduced_profile), self.reduce_num_players):
+                stats = self.get_stats()
+                self.reduced_game_stats[tuple(reduced_profile)].append(stats.copy())
+        save_pkl(self.reduced_game_stats, path=self.checkpoint_dir + "/reduced_game_stats.pkl")
 
             # print("---------")
 
@@ -265,8 +271,50 @@ class EGTASolver:
     def get_reduced_game(self):
         return self.reduced_game
 
-    def observe(self):
-        pass
+    def get_reduced_game_stats(self):
+        """
+        self.reduced_game_stats is a dict where keys are profiles in the reduced game
+        """
+        return self.reduced_game_stats
+
+    def observe(self, logger):
+        logger.info("==== Begin Evaluation ====")
+        measures = ["Bank_asset", "Bank_equity", "Default_bank", "Recover_rate"]
+        noop_profile = tuple([self.reduce_num_players] + [0 for _ in range(self.num_policies-1)])
+        noop_stats = self.reduced_game_stats[noop_profile][0]
+        if len(self.pure_equilibria) != 0:
+            self.summary_stats = self.init_reduced_game_stats(self.pure_equilibria)
+            for pure_ne in self.pure_equilibria:
+                if pure_ne == noop_profile:
+                    del self.summary_stats[tuple(pure_ne)]
+                    logger.info("Skip No-op NE.")
+                    continue
+                logger.info("Pure NE: {}".format(pure_ne))
+                reduced_stats = self.reduced_game_stats[tuple(pure_ne)][0]
+                for i, stat in enumerate(reduced_stats):
+                    noop_stat = noop_stats[i]
+                    for measure in measures:
+                        if measure in ["Bank_asset", "Bank_equity"]:
+                            if np.sum(noop_stat[measure]) - np.sum(stat[measure]) > 0.2:
+                                self.summary_stats[tuple(pure_ne)][measure]["harm"] += 1
+                            elif np.sum(noop_stat[measure]) - np.sum(stat[measure]) < 0.2:
+                                self.summary_stats[tuple(pure_ne)][measure]["benefit"] += 1
+                            else:
+                                self.summary_stats[tuple(pure_ne)][measure]["neural"] += 1
+                        else:
+                            if np.sum(noop_stat[measure]) > np.sum(stat[measure]):
+                                self.summary_stats[tuple(pure_ne)][measure]["harm"] += 1
+                            elif np.sum(noop_stat[measure]) < np.sum(stat[measure]):
+                                self.summary_stats[tuple(pure_ne)][measure]["benefit"] += 1
+                            else:
+                                self.summary_stats[tuple(pure_ne)][measure]["neural"] += 1
+
+            logger.info("Summary Stats: {}".format(self.summary_stats))
+
+        else:
+            logger.info("==== No pure-strategy NE ====")
+
+
 
 
 
