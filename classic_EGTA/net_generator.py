@@ -70,4 +70,4 @@ def generate_all_networks(num_instance, num_banks, save_path="./instances/networ
 if __name__ == "__main__":
     generate_all_networks(num_instance=1000,
                           num_banks=10,
-                          save_path="./instances/networks_10banks_1000ins.pkl")
+                          save_path="../instances/networks_10banks_1000ins.pkl")
