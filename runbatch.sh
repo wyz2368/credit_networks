@@ -1,1 +1,1 @@
-python --sim_per_profile 1000 --default_cost 0.5 --utility_type Bank_asset --instance_path ../instances/networks_10banks_1000ins_070ext.pkl --root_result_folder experiments
+python example.py --sim_per_profile 1000 --default_cost 0.5 --utility_type Bank_asset --instance_path ../instances/networks_10banks_1000ins_070ext.pkl --root_result_folder experiments
