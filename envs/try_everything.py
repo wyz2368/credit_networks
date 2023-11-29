@@ -21,11 +21,7 @@ from classic_EGTA.clearing import clearing
 # [ 27.667       65.90904039  92.40732485  97.90145025  87.4582818
   # 31.         125.44768192  39.612      131.48656724  56.        ]
 
+a = np.array([None, 1, 2, None])
+b = np.array([0, 2, 3, 0])
 
-def is_pure(profile, num_players):
- if len(np.where(np.array(profile) == num_players)[0]) != 0:
-  return True
- return False
-
-profile = tuple([0,0,3])
-print(is_pure(profile, 3))
+print(a * b)

@@ -231,7 +231,7 @@ class EGTASolver:
                 stats = self.get_stats()
                 self.reduced_game_stats[tuple(reduced_profile)].append(stats.copy())
         save_pkl(self.reduced_game_stats, path=self.checkpoint_dir + "/reduced_game_stats.pkl")
-
+        save_pkl(self.reduced_game, path=self.checkpoint_dir + "/reduced_game.pkl")
             # print("---------")
 
     def regret_in_full_game(self, profile, num_iterations):
@@ -311,9 +311,34 @@ class EGTASolver:
 
             logger.info("Summary Stats: {}".format(self.summary_stats))
 
+
         else:
             logger.info("==== No pure-strategy NE ====")
 
+        logger.info("==== Social Welfare ====")
+        sw_over_profiles = []
+        for reduced_profile in self.reduced_game:
+            sw = 0
+            for i in range(len(reduced_profile)):
+                if reduced_profile[i] == 0:
+                    continue
+                sw += reduced_profile[i] * self.reduced_game[reduced_profile][i]
+            sw_over_profiles.append(sw)
+        optimum = max(sw_over_profiles)
+        logger.info("SW Optimum: {}".format(optimum))
+
+        for pure_ne in self.pure_equilibria:
+            if pure_ne == noop_profile:
+                logger.info("Skip No-op NE.")
+                continue
+
+            for i in range(len(pure_ne)):
+                if pure_ne[i] == 0:
+                    continue
+                ne_sw = self.reduced_game[tuple(pure_ne)][i] * self.reduce_num_players
+                break
+
+            logger.info("Pure NE: {}".format(pure_ne) + " SW: {}".format(ne_sw) + " PoA: {}".format(ne_sw / optimum))
 
 
 
