@@ -1,6 +1,9 @@
 import numpy as np
+import itertools
 from itertools import product
 import copy
+
+from classic_EGTA.nash_solvers.pygambit_solver import pygbt_solve_matrix_games
 
 def create_profiles(num_players, num_strategies):
     strategy_index = range(num_strategies)
@@ -23,6 +26,7 @@ def create_profiles(num_players, num_strategies):
         combination_counts.append(counts)
 
     return combination_counts
+
 
 def find_pure_equilibria(reduced_game):
     """
@@ -63,9 +67,64 @@ def find_pure_equilibria(reduced_game):
 
     return equilibria
 
+
+def convert_to_full_game(num_players, num_policies, symmetric_game):
+    total_number_policies = [num_policies for _ in range(num_players)]
+    meta_games = [np.full(tuple(total_number_policies), np.nan) for _ in range(num_players)]
+
+    range_iterators = [range(total_number_policies[k]) for k in range(num_players)]
+
+    for current_index in itertools.product(*range_iterators):
+        indice = list(current_index)
+        profile = [0 for _ in range(num_policies)]
+        for i in indice:
+            profile[i] += 1
+        payoffs = symmetric_game[tuple(profile)]
+
+        for player in range(num_players):
+            player_strategy = indice[player]
+            meta_games[player][tuple(indice)] = payoffs[player_strategy]
+
+    return meta_games
+
+
+
 # game = {}
 # game[(2, 0)] = [1, None]
 # game[(1, 1)] = [0, 0]
 # game[(0, 2)] = [None, 1]
-#
+
 # print(find_pure_equilibria(game))
+
+
+# game = {}
+# game[(3, 0)] = [0.5, None]
+# game[(2, 1)] = [1, 2]
+# game[(1, 2)] = [2, 1]
+# game[(0, 3)] = [None, 0.5]
+#
+# print("Pure-strategy equilibria:", find_pure_equilibria(game))
+# meta_games = convert_to_full_game(num_players=3, num_policies=2, symmetric_game=game)
+# # ne = pygbt_solve_matrix_games(meta_games, method="gnm", mode="all")
+# print(meta_games)
+# print("NE given by gnm:", ne)
+#
+# imitation_game = [np.array([[[0.5, 1.],
+#                              [1., -1.]],
+#
+#                             [[3., 1.],
+#                              [1., 1]]]),
+#                   np.array([[[1., 1.],
+#                              [0., 0.]],
+#
+#                             [[0., 0.],
+#                              [1., 1.]]]),
+#                   np.array([[[1., 0.],
+#                              [1., 0.]],
+#
+#                             [[0., 1.],
+#                              [0., 1.]]])]
+#
+# ne = pygbt_solve_matrix_games(imitation_game, method="simpdiv", mode="all")
+# print("NE given by the imitation game", ne)
+# print("Pure-strategy equilibria:", pygbt_solve_matrix_games(imitation_game, method="enumpure", mode="all"))

@@ -59,15 +59,15 @@ def pygbt_solve_matrix_games(meta_games, method="lcp", mode="all"):
 
 
 # meta_games = [np.array([[1,2,3], [4,5,6], [7,8,9]]), np.array([[1,2,3], [4,5,6], [7,8,9]])]
-# meta_games = [np.array([[ 4.,  2.],
-#        [ 6., -6.]]), np.array([[ 2., -6.],
-#        [ 6., -8.]])]
+# meta_games = [np.array([[ 0.5,  2.],
+#        [ 2., 0.5]]), np.array([[ 0.5,  2.],
+#        [ 2., 0.5]])]
 
 # meta_games = [np.array([[2, 0], [0, 2]]), np.array([[2, 0], [0, 2]])]
 
 # meta_games = [np.array([[0.5]]), np.array([[-0.5]])]
-# ne = pygbt_solve_matrix_games(meta_games, method="logit", mode="one")
-#
+# ne = pygbt_solve_matrix_games(meta_games, method="gnm", mode="one")
+
 # print(ne)
 
 # meta_games = [np.ones((4,4,4,4)) + 1,

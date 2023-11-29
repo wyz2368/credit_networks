@@ -1,5 +1,5 @@
 """
-This is a PettingZoo implementation of a credit network for prepayment.
+This is a PettingZoo implementation of a credit network for debt transfer.
 """
 
 import functools
@@ -11,8 +11,6 @@ import numpy as np
 from gymnasium.spaces import MultiBinary, Box
 
 from pettingzoo import ParallelEnv
-# from pettingzoo.utils import parallel_to_aec
-# from pettingzoo.utils import wrappers
 from envs.customized_wrappers import Customized_AssertOutOfBoundsWrapper
 from envs.customized_wrappers import Customized_OrderEnforcingWrapper
 from envs.customized_wrappers import parallel_to_aec
@@ -37,13 +35,13 @@ def raw_env(env):
     return env
 
 
-class Prepayment_Net(ParallelEnv):
+class DebtTrans_Net(ParallelEnv):
     """
     The metadata holds environment constants.
     The "name" metadata allows the environment to be pretty printed.
     """
 
-    metadata = {"name": "prepayment_net"}
+    metadata = {"name": "debttrans_net"}
 
     def __init__(self,
                  num_banks=10,
@@ -52,6 +50,7 @@ class Prepayment_Net(ParallelEnv):
                  default_cost=0.5,
                  num_rounds=1,
                  utility_type="Bank_asset",
+                 compression=False,
                  instance_path="./instances/networks_10banks_1000ins.pkl",
                  sample_type="enum"):
         """
@@ -67,6 +66,9 @@ class Prepayment_Net(ParallelEnv):
         self.low_payment = low_payment
         self.high_payment = high_payment
 
+        # Compression requires debt cycles.
+        self.compression = compression
+
         # A mapping between agent name and ID
         self.agent_name_mapping = dict(
             zip(self.possible_agents, list(range(len(self.possible_agents))))
@@ -74,7 +76,8 @@ class Prepayment_Net(ParallelEnv):
 
         # We can define the observation and action spaces here as attributes to be used in their corresponding methods
         # The observation shape is the shape of (adj_matrix + external asset).
-        self._action_spaces = {agent: MultiBinary(self.num_players) for agent in self.possible_agents}
+        # The action shape is just "Yes" or "No".
+        self._action_spaces = {agent: MultiBinary(1) for agent in self.possible_agents}
         self._observation_spaces = {
             agent: Box(low=low_payment, high=high_payment, shape=(self.num_players + 1, self.num_players)) for agent in self.possible_agents
         }
@@ -101,7 +104,7 @@ class Prepayment_Net(ParallelEnv):
     # If your spaces change over time, remove this line (disable caching).
     @functools.lru_cache(maxsize=None)
     def action_space(self, agent):
-        return MultiBinary(self.num_players)
+        return MultiBinary(1)
 
     def sample_network(self):
         if self.sample_type == "random":
@@ -133,7 +136,6 @@ class Prepayment_Net(ParallelEnv):
     def update_default_cost(self, new_default_cost):
         self.default_cost = new_default_cost
 
-
     def get_stats(self):
         return self.stats
 
@@ -143,8 +145,10 @@ class Prepayment_Net(ParallelEnv):
     def reset_stats(self):
         self.stats = []
 
-
     def apply_actions(self, adj_matrix, external_assets, actions):
+        """
+        Debt transfer actions.
+        """
         new_external_assets = external_assets[:]
         new_adj_matrix = adj_matrix[:]
         for player_name, action in actions.items():
@@ -152,7 +156,6 @@ class Prepayment_Net(ParallelEnv):
             feasible_set = np.where(action == 1)[0]
             for j in feasible_set:
                 new_external_assets[player] -= new_adj_matrix[player][j]
-                new_external_assets[j] += new_adj_matrix[player][j]
                 new_adj_matrix[player, j] = 0
 
         return new_external_assets, new_adj_matrix
@@ -232,12 +235,12 @@ class Prepayment_Net(ParallelEnv):
             observations = self.state
 
         else:
-            # print("before:\n", external_assets)
-            # print("before:\n", adj_m)
+            print("before:\n", external_assets)
+            print("before:\n", adj_m)
             new_external_assets, new_adj_matrix = self.apply_actions(adj_m, external_assets, actions)
 
-            # print(new_external_assets)
-            # print(new_adj_matrix)
+            print(new_external_assets)
+            print(new_adj_matrix)
 
             rewards = {}
             for agent in self.agents:
@@ -245,8 +248,7 @@ class Prepayment_Net(ParallelEnv):
 
             terminations = {agent: False for agent in self.agents}
 
-            # current observation is set to be same as state. However, strategies only use
-            # partial of full information and are restricted to local info.
+            # current observation is just the other player's most recent action
             adj_matrix_asset = np.vstack([new_adj_matrix, new_external_assets])
             observations = {
                 self.agents[i]: adj_matrix_asset for i in range(len(self.agents))

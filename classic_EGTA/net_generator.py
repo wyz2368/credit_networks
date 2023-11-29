@@ -32,19 +32,21 @@ def load_pkl(path):
         result = pickle.load(f)
     return result
 
-def generate_networks(n):
-    external_asset = np.random.uniform(low=0.0, high=40, size=n)
-    Lk_r = list(np.random.randint(low=0, high=n-1, size=n))
-    rand_bankrupts = np.random.randint(low=0, high=n)
+def generate_networks(n, default_frac=0.5):
+    external_asset = np.random.uniform(low=40, high=70, size=n)
+    Lk_r = list(np.random.randint(low=int((n-1)/2), high=n-1, size=n))
+    rand_bankrupts = np.random.randint(low=0, high=int(default_frac * n))
     shock_id = random.sample(range(n), rand_bankrupts)
     for s in shock_id:
         external_asset[s] = 0
 
     adj = np.zeros((n, n))
+    # print("LK:", Lk_r)
     for i in range(len(Lk_r)):
         alist = list(range(0, n))
         alist.remove(i)
         Cdt_index = np.array(random.sample(alist, Lk_r[i]))
+        # print(Cdt_index)
         for j in Cdt_index:
             homo_lb = [10, 20, 35]
             adj[i][j] = np.random.randint(0, random.choice(homo_lb))
@@ -60,6 +62,7 @@ def generate_all_networks(num_instance, num_banks, save_path="./instances/networ
         net["adj"] = adj
         net["num_edges"] = num_edges
         networks.append(net)
+        # break
 
     save_pkl(networks, save_path)
 
