@@ -106,7 +106,7 @@ def main(argv):
         os.makedirs(FLAGS.root_result_folder)
 
     checkpoint_dir = FLAGS.game_name
-    checkpoint_dir = checkpoint_dir + '_ut_ ' + FLAGS.utility_type + '_dfcost_' + str(FLAGS.default_cost) + '_se_' + str(seed) + '_' + datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
+    checkpoint_dir = checkpoint_dir + '_ut_ ' + FLAGS.utility_type + '_dfcost_' + str(FLAGS.default_cost) + "_ins_" + FLAGS.instance_path[-11:-4] + '_se_' + str(seed) + '_' + datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
     checkpoint_dir = os.path.join(os.getcwd(), FLAGS.root_result_folder, checkpoint_dir)
 
     if not os.path.exists(checkpoint_dir):
