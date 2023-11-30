@@ -121,8 +121,8 @@ class Prepayment_Net(ParallelEnv):
         """
         self.agents = self.possible_agents[:]
         self.num_moves = 0
-        self.network_pool_iterator = iter(self.network_pool)
         self.current_network = self.sample_network()
+        # print("current networks:", self.current_network)
         adj_matrix_asset = np.vstack([self.current_network["adj"], self.current_network["external_asset"]])
         observations = {agent: adj_matrix_asset for agent in self.agents} # This assumes perfect information and can be overloaded.
         infos = {agent: {} for agent in self.agents}

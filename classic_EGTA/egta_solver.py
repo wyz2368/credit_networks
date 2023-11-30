@@ -161,6 +161,7 @@ class EGTASolver:
         # When sample_type is "enum", it returns an instance given by an iterator.
         # When sample_type is "random", it returns an instance randomly sampled from the generator.
         for i in range(self.sim_per_profile):
+            # print("-------")
             observations, infos = self.env.reset()
             traj_rewards = []
             while self.env.agents:

@@ -5,6 +5,8 @@ from envs.prepayment_net import Prepayment_Net
 from classic_EGTA.strategies import PREPAYMENT_STRATEGIES
 from classic_EGTA.clearing import load_pkl
 
+
+
 # # Load game. This should be adaptive to different environments.
 # prepayment_network = Prepayment_Net(num_banks=10,
 #                                     default_cost=0.5,
