@@ -22,7 +22,9 @@ flags.DEFINE_integer("num_rounds", 10, "The max number of time steps for truncat
 flags.DEFINE_float("default_cost", 0.5, "Default cost")
 flags.DEFINE_string("utility_type", "Bank_asset", "Options: Bank_asset, Bank_equity")
 flags.DEFINE_string("sample_type", "enum", "Options: random, enum")
-flags.DEFINE_string("instance_path", "../instances/networks_10banks_1000ins.pkl", "Path to instances.")
+flags.DEFINE_string("instance_path", "../instances/networks_10banks_1000ins_4070ext.pkl", "Path to instances.")
+
+#networks_10banks_1000ins.pkl
 
 # General
 flags.DEFINE_string("root_result_folder", 'root_result', "root directory of saved results")

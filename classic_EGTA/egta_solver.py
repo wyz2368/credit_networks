@@ -289,6 +289,10 @@ class EGTASolver:
                     del self.summary_stats[tuple(pure_ne)]
                     logger.info("Skip No-op NE.")
                     continue
+                if not is_pure(pure_ne, self.reduce_num_players):
+                    del self.summary_stats[tuple(pure_ne)]
+                    logger.info("Not pure symmetric NE.")
+                    continue
                 logger.info("Pure NE: {}".format(pure_ne))
                 reduced_stats = self.reduced_game_stats[tuple(pure_ne)][0]
                 for i, stat in enumerate(reduced_stats):
@@ -315,6 +319,7 @@ class EGTASolver:
         else:
             logger.info("==== No pure-strategy NE ====")
 
+
         logger.info("==== Social Welfare ====")
         sw_over_profiles = []
         for reduced_profile in self.reduced_game:
@@ -330,6 +335,10 @@ class EGTASolver:
         for pure_ne in self.pure_equilibria:
             if pure_ne == noop_profile:
                 logger.info("Skip No-op NE.")
+                continue
+
+            if not is_pure(pure_ne, self.reduce_num_players):
+                logger.info("Not pure symmetric NE in SW.")
                 continue
 
             for i in range(len(pure_ne)):

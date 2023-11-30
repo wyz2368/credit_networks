@@ -5,6 +5,12 @@ Only one vector of strategies is kept.
 
 import numpy as np
 
+def softmax_on_range(number_policies):
+  x = np.array(list(range(number_policies)))
+  x = np.exp(x-x.max())
+  x /= np.sum(x)
+  return x
+
 def _project_distribution(updated_strategy, gamma):
   """Projects the distribution in updated_x to have minimal probabilities.
 
@@ -39,6 +45,24 @@ def _approx_simplex_projection(updated_strategy, gamma=0.0):
   """
   # Epsilon approximation of L2-norm projection onto the Delta_gamma space.
   updated_strategy[updated_strategy < gamma] = gamma
+  updated_strategy = updated_strategy / np.sum(updated_strategy)
+  return updated_strategy
+
+def normalize(updated_strategy, gamma=0.0):
+  """Approximately projects the distribution in updated_x to have minimal probabilities.
+
+  Minimal probabilities are set as gamma, and the probabilities are then
+  renormalized to sum to 1.
+
+  Args:
+    updated_strategy: New distribution value after being updated by update rule.
+    gamma: minimal probability value when divided by number of actions.
+
+  Returns:
+    Projected distribution.
+  """
+  # Epsilon approximation of L2-norm projection onto the Delta_gamma space.
+  updated_strategy[updated_strategy < gamma] = 0
   updated_strategy = updated_strategy / np.sum(updated_strategy)
   return updated_strategy
 
@@ -167,10 +191,12 @@ def replicator_dynamics(payoff_tensors,
   action_space_shapes = payoff_tensors[0].shape
 
   # If no initial starting position is given, start with uniform probabilities.
-  new_strategies = [
-      np.ones(action_space_shapes[k]) / action_space_shapes[k]
-      for k in range(number_players)
-  ]
+  # new_strategies = [
+  #     np.ones(action_space_shapes[k]) / action_space_shapes[k]
+  #     for k in range(number_players)
+  # ]
+
+  new_strategies = [softmax_on_range(action_space_shapes[k]) for k in range(number_players)]
 
   average_over_last_n_strategies = average_over_last_n_strategies or prd_iterations
 
@@ -180,7 +206,7 @@ def replicator_dynamics(payoff_tensors,
     if i >= prd_iterations - average_over_last_n_strategies:
       meta_strategy_window.append(new_strategies)
   average_new_strategies = np.mean(meta_strategy_window, axis=0)
-  nash_list = [average_new_strategies[i] for i in range(number_players)]
+  nash_list = [normalize(average_new_strategies[i], 5e-3) for i in range(number_players)]
   # return average_new_strategies
   return nash_list
 
