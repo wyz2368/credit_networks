@@ -1,0 +1,20 @@
+python example.py --sim_per_profile 1000 --default_cost 0.1 --utility_type Bank_asset --instance_path ./instances/networks_10banks_1000ins_70100ext.pkl --root_result_folder experiments && \
+python example.py --sim_per_profile 1000 --default_cost 0.1 --utility_type Bank_equity --instance_path ./instances/networks_10banks_1000ins_70100ext.pkl --root_result_folder experiments && \
+python example.py --sim_per_profile 1000 --default_cost 0.3 --utility_type Bank_asset --instance_path ./instances/networks_10banks_1000ins_70100ext.pkl --root_result_folder experiments && \
+python example.py --sim_per_profile 1000 --default_cost 0.3 --utility_type Bank_equity --instance_path ./instances/networks_10banks_1000ins_70100ext.pkl --root_result_folder experiments && \
+python example.py --sim_per_profile 1000 --default_cost 0.5 --utility_type Bank_asset --instance_path ./instances/networks_10banks_1000ins_70100ext.pkl --root_result_folder experiments && \
+python example.py --sim_per_profile 1000 --default_cost 0.5 --utility_type Bank_equity --instance_path ./instances/networks_10banks_1000ins_70100ext.pkl --root_result_folder experiments && \
+python example.py --sim_per_profile 1000 --default_cost 0.7 --utility_type Bank_asset --instance_path ./instances/networks_10banks_1000ins_70100ext.pkl --root_result_folder experiments && \
+python example.py --sim_per_profile 1000 --default_cost 0.7 --utility_type Bank_equity --instance_path ./instances/networks_10banks_1000ins_70100ext.pkl --root_result_folder experiments && \
+python example.py --sim_per_profile 1000 --default_cost 0.9 --utility_type Bank_asset --instance_path ./instances/networks_10banks_1000ins_70100ext.pkl --root_result_folder experiments && \
+python example.py --sim_per_profile 1000 --default_cost 0.9 --utility_type Bank_equity --instance_path ./instances/networks_10banks_1000ins_70100ext.pkl --root_result_folder experiments && \
+python example.py --sim_per_profile 1000 --default_cost 0.1 --utility_type Bank_asset --instance_path ./instances/networks_10banks_1000ins_4070ext.pkl --root_result_folder experiments && \
+python example.py --sim_per_profile 1000 --default_cost 0.1 --utility_type Bank_equity --instance_path ./instances/networks_10banks_1000ins_4070ext.pkl --root_result_folder experiments && \
+python example.py --sim_per_profile 1000 --default_cost 0.3 --utility_type Bank_asset --instance_path ./instances/networks_10banks_1000ins_4070ext.pkl --root_result_folder experiments && \
+python example.py --sim_per_profile 1000 --default_cost 0.3 --utility_type Bank_equity --instance_path ./instances/networks_10banks_1000ins_4070ext.pkl --root_result_folder experiments && \
+python example.py --sim_per_profile 1000 --default_cost 0.5 --utility_type Bank_asset --instance_path ./instances/networks_10banks_1000ins_4070ext.pkl --root_result_folder experiments && \
+python example.py --sim_per_profile 1000 --default_cost 0.5 --utility_type Bank_equity --instance_path ./instances/networks_10banks_1000ins_4070ext.pkl --root_result_folder experiments && \
+python example.py --sim_per_profile 1000 --default_cost 0.7 --utility_type Bank_asset --instance_path ./instances/networks_10banks_1000ins_4070ext.pkl --root_result_folder experiments && \
+python example.py --sim_per_profile 1000 --default_cost 0.7 --utility_type Bank_equity --instance_path ./instances/networks_10banks_1000ins_4070ext.pkl --root_result_folder experiments && \
+python example.py --sim_per_profile 1000 --default_cost 0.9 --utility_type Bank_asset --instance_path ./instances/networks_10banks_1000ins_4070ext.pkl --root_result_folder experiments && \
+python example.py --sim_per_profile 1000 --default_cost 0.9 --utility_type Bank_equity --instance_path ./instances/networks_10banks_1000ins_4070ext.pkl --root_result_folder experiments
