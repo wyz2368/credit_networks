@@ -206,7 +206,7 @@ def replicator_dynamics(payoff_tensors,
     if i >= prd_iterations - average_over_last_n_strategies:
       meta_strategy_window.append(new_strategies)
   average_new_strategies = np.mean(meta_strategy_window, axis=0)
-  nash_list = [normalize(average_new_strategies[i], 5e-3) for i in range(number_players)]
+  nash_list = [normalize(average_new_strategies[i], 1e-2) for i in range(number_players)]
   # return average_new_strategies
   return nash_list
 

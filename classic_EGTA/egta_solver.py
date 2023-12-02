@@ -9,6 +9,7 @@ from classic_EGTA.player_reduction import deviation_preserve_reduction
 from classic_EGTA.nash_solvers.pygambit_solver import pygbt_solve_matrix_games
 from classic_EGTA.nash_solvers.replicator_dynamics import replicator_dynamics
 from classic_EGTA.clearing import save_pkl
+from classic_EGTA.evaluation import evaluate
 
 def to_binary_action(num_actions, vanilla_action):
     """
@@ -43,7 +44,7 @@ def average_stats(stats):
     return average_result
 
 
-def average_payoff_per_policy(average_result, original_profile, reduced_profile):
+def average_payoff_per_policy(average_result, original_profile):
     """
     Compute the averaged payoff for each policy. This is achieved by averaging the payoffs
     of players playing the same policy.
@@ -79,7 +80,7 @@ def sample_pure_profile(mixed_strategy, num_players):
     return profile
 
 
-def is_pure(profile, num_players):
+def is_pure_symmetric(profile, num_players):
     if len(np.where(np.array(profile) == num_players)[0]) != 0:
         return True
     return False
@@ -103,7 +104,6 @@ class EGTASolver:
 
         self.reduced_profiles = create_profiles(num_players=self.reduce_num_players, num_strategies=len(self.policies))
         self.reduced_game = self.init_reduced_game(self.reduced_profiles)
-        self.reduced_game_stats = self.init_reduced_game(self.reduced_profiles)
         self.equilibria = []
 
         # print("Begin Running EGTA.")
@@ -157,6 +157,8 @@ class EGTASolver:
         """
         current_policies = self.assign_policies(profile)
         averaged_rewards = []
+        self.env.reset_netpool_iterator()
+        # print("-------")
         # When network instance is sampled from the generator, env.reset will sample a new instance.
         # When sample_type is "enum", it returns an instance given by an iterator.
         # When sample_type is "random", it returns an instance randomly sampled from the generator.
@@ -195,7 +197,6 @@ class EGTASolver:
         """
         # print("In update_reduced_game_states")
         for reduced_profile in self.reduced_profiles:
-            self.reset_stats()
             # Compute the corresponding profile in the original game.
             # original_profiles is a list of profiles, one for each deviating strategy.
             original_profiles = deviation_preserve_reduction(reduced_profile=reduced_profile,
@@ -211,8 +212,7 @@ class EGTASolver:
                 averaged_rewards = self.simulation(original_profile)
                 # print("averaged_rewards:", averaged_rewards)
                 payoffs = average_payoff_per_policy(average_result=averaged_rewards,
-                                                    original_profile=original_profile,
-                                                    reduced_profile=reduced_profile)
+                                                    original_profile=original_profile)
                 payoffs_over_original_profiles.append(payoffs)
                 # print("payoffs:", payoffs)
 
@@ -227,11 +227,6 @@ class EGTASolver:
 
             # print("self.reduced_game[tuple(reduced_profile)]:", self.reduced_game[tuple(reduced_profile)])
 
-            # Only care about pure-strategy profile.
-            if is_pure(tuple(reduced_profile), self.reduce_num_players):
-                stats = self.get_stats()
-                self.reduced_game_stats[tuple(reduced_profile)].append(stats.copy())
-        save_pkl(self.reduced_game_stats, path=self.checkpoint_dir + "/reduced_game_stats.pkl")
         save_pkl(self.reduced_game, path=self.checkpoint_dir + "/reduced_game.pkl")
             # print("---------")
 
@@ -272,83 +267,24 @@ class EGTASolver:
     def get_reduced_game(self):
         return self.reduced_game
 
-    def get_reduced_game_stats(self):
-        """
-        self.reduced_game_stats is a dict where keys are profiles in the reduced game
-        """
-        return self.reduced_game_stats
-
     def observe(self, logger):
         logger.info("==== Begin Evaluation ====")
-        measures = ["Bank_asset", "Bank_equity", "Default_bank", "Recover_rate"]
-        noop_profile = tuple([self.reduce_num_players] + [0 for _ in range(self.num_policies-1)])
-        noop_stats = self.reduced_game_stats[noop_profile][0]
-        if len(self.pure_equilibria) != 0:
-            self.summary_stats = self.init_reduced_game_stats(self.pure_equilibria)
-            for pure_ne in self.pure_equilibria:
-                if pure_ne == noop_profile:
-                    del self.summary_stats[tuple(pure_ne)]
-                    logger.info("Skip No-op NE.")
-                    continue
-                if not is_pure(pure_ne, self.reduce_num_players):
-                    del self.summary_stats[tuple(pure_ne)]
-                    logger.info("Not pure symmetric NE.")
-                    continue
-                logger.info("Pure NE: {}".format(pure_ne))
-                reduced_stats = self.reduced_game_stats[tuple(pure_ne)][0]
-                for i, stat in enumerate(reduced_stats):
-                    noop_stat = noop_stats[i]
-                    for measure in measures:
-                        if measure in ["Bank_asset", "Bank_equity"]:
-                            if np.sum(noop_stat[measure]) - np.sum(stat[measure]) > 0.2:
-                                self.summary_stats[tuple(pure_ne)][measure]["harm"] += 1
-                            elif np.sum(noop_stat[measure]) - np.sum(stat[measure]) < 0.2:
-                                self.summary_stats[tuple(pure_ne)][measure]["benefit"] += 1
-                            else:
-                                self.summary_stats[tuple(pure_ne)][measure]["neural"] += 1
-                        else:
-                            if np.sum(noop_stat[measure]) > np.sum(stat[measure]):
-                                self.summary_stats[tuple(pure_ne)][measure]["harm"] += 1
-                            elif np.sum(noop_stat[measure]) < np.sum(stat[measure]):
-                                self.summary_stats[tuple(pure_ne)][measure]["benefit"] += 1
-                            else:
-                                self.summary_stats[tuple(pure_ne)][measure]["neural"] += 1
-
-            logger.info("Summary Stats: {}".format(self.summary_stats))
-
-
-        else:
+        if len(self.pure_equilibria) == 0:
             logger.info("==== No pure-strategy NE ====")
 
-
-        logger.info("==== Social Welfare ====")
-        sw_over_profiles = []
-        for reduced_profile in self.reduced_game:
-            sw = 0
-            for i in range(len(reduced_profile)):
-                if reduced_profile[i] == 0:
-                    continue
-                sw += reduced_profile[i] * self.reduced_game[reduced_profile][i]
-            sw_over_profiles.append(sw)
-        optimum = max(sw_over_profiles)
-        logger.info("SW Optimum: {}".format(optimum))
-
-        for pure_ne in self.pure_equilibria:
-            if pure_ne == noop_profile:
-                logger.info("Skip No-op NE.")
+        ne_set = []
+        for ne in self.pure_equilibria:
+            if not is_pure_symmetric(ne, self.reduce_num_players):
                 continue
+            mixed_strategy = np.copy(ne)
+            mixed_strategy[mixed_strategy > 0] = 1
+            ne_set.append(mixed_strategy)
 
-            if not is_pure(pure_ne, self.reduce_num_players):
-                logger.info("Not pure symmetric NE in SW.")
-                continue
+        ne_set.append(self.equilibria[0][0])
 
-            for i in range(len(pure_ne)):
-                if pure_ne[i] == 0:
-                    continue
-                ne_sw = self.reduced_game[tuple(pure_ne)][i] * self.reduce_num_players
-                break
+        evaluate(self, ne_set, logger)
 
-            logger.info("Pure NE: {}".format(pure_ne) + " SW: {}".format(ne_sw) + " PoA: {}".format(ne_sw / optimum))
+
 
 
 

@@ -134,10 +134,10 @@ def clearing_instances(load_path="./instances/networks_10banks_1000ins.pkl",
 
     return all_stats
 
-if __name__ == "__main__":
-    for alpha in np.linspace(0, 1, 11):
-        alpha = np.round(alpha, 1)
-        clearing_instances(ALPHA=alpha)
+# if __name__ == "__main__":
+#     for alpha in np.linspace(0, 1, 11):
+#         alpha = np.round(alpha, 1)
+#         clearing_instances(ALPHA=alpha)
 
 
 

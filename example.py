@@ -16,9 +16,9 @@ FLAGS = flags.FLAGS
 # Game-related
 flags.DEFINE_string("game_name", "prepayment_game", "Game name.")
 flags.DEFINE_integer("num_banks", 10, "The number of players.")
-flags.DEFINE_integer("sim_per_profile", 4, "The number of simulations per profile.")
+flags.DEFINE_integer("sim_per_profile", 1, "The number of simulations per profile.")
 flags.DEFINE_integer("reduce_num_players", 4, "The number of players in the reduced game.")
-flags.DEFINE_integer("num_rounds", 10, "The max number of time steps for truncation.")
+flags.DEFINE_integer("num_rounds", 1, "The max number of time steps for truncation.")
 flags.DEFINE_float("default_cost", 0.5, "Default cost")
 flags.DEFINE_string("utility_type", "Bank_asset", "Options: Bank_asset, Bank_equity")
 flags.DEFINE_string("sample_type", "enum", "Options: random, enum")

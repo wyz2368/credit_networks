@@ -130,6 +130,9 @@ class Prepayment_Net(ParallelEnv):
 
         return observations, infos
 
+    def reset_netpool_iterator(self):
+        self.network_pool_iterator = iter(self.network_pool)
+
     def update_default_cost(self, new_default_cost):
         self.default_cost = new_default_cost
 
