@@ -21,8 +21,9 @@ flags.DEFINE_float("default_cost", 0.5, "Default cost")
 flags.DEFINE_string("utility_type", "Bank_asset", "Options: Bank_asset, Bank_equity")
 flags.DEFINE_string("sample_type", "enum", "Options: random, enum")
 flags.DEFINE_string("instance_path", "../instances/networks_10banks_1000ins_4070ext.pkl", "Path to instances.")
+flags.DEFINE_bool("is_eval", True, "Whether run a complete evaluation")
 
-#networks_10banks_1000ins.pkl
+
 
 # General
 flags.DEFINE_string("root_result_folder", 'root_result', "root directory of saved results")
@@ -75,7 +76,8 @@ def egta_runner(env, checkpoint_dir):
     logger.info("RD Equilibria: {}".format(RD_equilibria))
 
     # Evaluation
-    egta_solver.observe(logger)
+    if FLAGS.is_eval:
+        egta_solver.observe(logger)
 
 
 

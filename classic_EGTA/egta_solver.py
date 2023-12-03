@@ -184,7 +184,7 @@ class EGTASolver:
                     binary_action = to_binary_action(self.num_players, vanilla_action)
                     actions[agent] = binary_action
 
-                # print("actions1:", actions)
+                # print("actions:", actions)
 
                 observations, rewards, terminations, truncations, infos = self.env.step(actions)
                 traj_rewards.append([rewards[agent] for agent in self.env.possible_agents])

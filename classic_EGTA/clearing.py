@@ -150,6 +150,10 @@ def clearing_instances(load_path="./instances/networks_10banks_1000ins.pkl",
 #     [5, 3, 0, 2],
 #     [0, 0, 1, 0]])
 #
+# external_assets = np.random.randint(0, 10, 10)
+# adj_m = np.random.randint(0, 10, (10, 10))
+#
+#
 # ALPHA = BETA = 0.5
 #
 # payments_matrix, Bank_equity, Bank_asset, SW_equity, SW_asset, Default_bank, Recover_rate = clearing(external_assets, adj_m, ALPHA, BETA)
