@@ -106,9 +106,14 @@ class EGTASolver:
         self.reduced_game = self.init_reduced_game(self.reduced_profiles)
         self.equilibria = []
 
-        # print("Begin Running EGTA.")
-        # print("Initial Reduced Profiles:", self.reduced_profiles, len(self.reduced_profiles))
-        # print("Initial Reduced Game:", self.reduced_game)
+        # For evaluation:
+        full_game_profiles = create_profiles(num_players=self.num_players,
+                                             num_strategies=len(self.policies))
+
+        self.full_symmetric_game = {}
+        for profile in full_game_profiles:
+            self.full_symmetric_game[tuple(profile)] = []
+        self.game_stats = self.init_reduced_game(full_game_profiles)
 
     def init_reduced_game(self, profiles):
         """
@@ -158,7 +163,7 @@ class EGTASolver:
         current_policies = self.assign_policies(profile)
         averaged_rewards = []
         self.env.reset_netpool_iterator()
-        # print("-------")
+
         # When network instance is sampled from the generator, env.reset will sample a new instance.
         # When sample_type is "enum", it returns an instance given by an iterator.
         # When sample_type is "random", it returns an instance randomly sampled from the generator.
@@ -195,26 +200,27 @@ class EGTASolver:
         """
         Simulate all profiles in the reduced game.
         """
-        # print("In update_reduced_game_states")
         for reduced_profile in self.reduced_profiles:
             # Compute the corresponding profile in the original game.
             # original_profiles is a list of profiles, one for each deviating strategy.
             original_profiles = deviation_preserve_reduction(reduced_profile=reduced_profile,
                                                              num_players=self.num_players,
                                                              reduce_num_players=self.reduce_num_players)
-            # print("reduced_profile:", reduced_profile)
-            # print("original_profiles:", original_profiles)
 
-            # print("For each original profile:")
             payoffs_over_original_profiles = []
             for original_profile in original_profiles:
-                # print("original_profile:", original_profile, "reduced:", reduced_profile)
+                self.reset_stats()
                 averaged_rewards = self.simulation(original_profile)
-                # print("averaged_rewards:", averaged_rewards)
+
                 payoffs = average_payoff_per_policy(average_result=averaged_rewards,
                                                     original_profile=original_profile)
                 payoffs_over_original_profiles.append(payoffs)
-                # print("payoffs:", payoffs)
+
+                # For evaluation
+                self.full_symmetric_game[tuple(original_profile)] = payoffs
+                stats = self.get_stats()
+                self.game_stats[tuple(original_profile)].append(stats.copy())
+
 
             j = 0 # index for payoffs_over_original_profiles
             for i, count in enumerate(reduced_profile):
@@ -225,10 +231,8 @@ class EGTASolver:
                     self.reduced_game[tuple(reduced_profile)].append(strategy_payoff)
                     j += 1
 
-            # print("self.reduced_game[tuple(reduced_profile)]:", self.reduced_game[tuple(reduced_profile)])
-
         save_pkl(self.reduced_game, path=self.checkpoint_dir + "/reduced_game.pkl")
-            # print("---------")
+
 
     def regret_in_full_game(self, profile, num_iterations):
         assert check_symmetric_strategies(profile)

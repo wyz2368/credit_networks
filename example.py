@@ -4,12 +4,10 @@ from absl import app
 from absl import flags
 import logging
 import numpy as np
-import random
 
 from envs.prepayment_net import create_env, Prepayment_Net
 from classic_EGTA.egta_solver import EGTASolver
 from classic_EGTA.strategies import PREPAYMENT_STRATEGIES
-from classic_EGTA.clearing import save_pkl
 
 
 FLAGS = flags.FLAGS
@@ -75,8 +73,6 @@ def egta_runner(env, checkpoint_dir):
     pure_equilibria, RD_equilibria = egta_solver.run()
     logger.info("Pure Equilibria: {}".format(pure_equilibria))
     logger.info("RD Equilibria: {}".format(RD_equilibria))
-    # for profile, payoffs in egta_solver.reduced_game.items():
-    #     print(profile, payoffs)
 
     # Evaluation
     egta_solver.observe(logger)
@@ -100,7 +96,6 @@ def main(argv):
                                         utility_type=FLAGS.utility_type,
                                         instance_path=FLAGS.instance_path,
                                         sample_type=FLAGS.sample_type)
-    # env = create_env(prepayment_network)
     env = prepayment_network
 
     # Set up working directory.
@@ -108,13 +103,16 @@ def main(argv):
         os.makedirs(FLAGS.root_result_folder)
 
     checkpoint_dir = FLAGS.game_name
-    checkpoint_dir = checkpoint_dir + '_ut_ ' + FLAGS.utility_type + '_dfcost_' + str(FLAGS.default_cost) + "_ins_" + FLAGS.instance_path[-11:-4] + '_se_' + str(seed) + '_' + datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
+    checkpoint_dir = checkpoint_dir + '_ut_' + FLAGS.utility_type + '_dfcost_' + str(FLAGS.default_cost) + "_ins_" + FLAGS.instance_path[-11:-4] + '_se_' + str(seed) + '_' + datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
     checkpoint_dir = os.path.join(os.getcwd(), FLAGS.root_result_folder, checkpoint_dir)
 
     if not os.path.exists(checkpoint_dir):
         os.makedirs(checkpoint_dir)
 
+
     egta_runner(env, checkpoint_dir=checkpoint_dir)
+
 
 if __name__ == "__main__":
     app.run(main)
+

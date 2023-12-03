@@ -43,31 +43,35 @@ def get_full_game(solver):
     """
     Simulate the full game with a compact symmetric-game representation.
     """
-    full_game_profiles = create_profiles(num_players=solver.num_players,
-                                         num_strategies=len(solver.policies))
-
-    full_symmetric_game = {}
-    for profile in full_game_profiles:
-        full_symmetric_game[tuple(profile)] = []
-
-    game_stats = solver.init_reduced_game(full_game_profiles)
+    full_symmetric_game = solver.full_symmetric_game
+    game_stats = solver.game_stats
 
     social_optimum = -np.inf
     optimum_profile = None
-    for profile in full_game_profiles:
-        solver.reset_stats()
-        averaged_rewards = solver.simulation(profile)
-        payoffs = average_payoff_per_policy(average_result=averaged_rewards,
-                                            original_profile=profile)
+    for profile in full_symmetric_game:
+        if len(full_symmetric_game[profile]) == 0:
+            solver.reset_stats()
+            averaged_rewards = solver.simulation(profile)
+            payoffs = average_payoff_per_policy(average_result=averaged_rewards,
+                                                original_profile=profile)
 
-        full_symmetric_game[tuple(profile)] = payoffs
-        sw = np.sum(averaged_rewards)
+            full_symmetric_game[tuple(profile)] = payoffs
+            stats = solver.get_stats()
+            game_stats[tuple(profile)].append(stats.copy())
+            sw = np.sum(averaged_rewards)
+        else:
+            payoffs = full_symmetric_game[profile]
+            sw = 0
+            for i, cnt in enumerate(list(profile)):
+                if cnt == 0:
+                    continue
+                sw += cnt * payoffs[i]
+
         if sw > social_optimum:
             social_optimum = sw
             optimum_profile = profile
 
-        stats = solver.get_stats()
-        game_stats[tuple(profile)].append(stats.copy())
+
 
 
     return full_symmetric_game, social_optimum, optimum_profile, game_stats
