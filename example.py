@@ -76,8 +76,8 @@ def egta_runner(env, checkpoint_dir):
     logger.info("RD Equilibria: {}".format(RD_equilibria))
 
     # Evaluation
-    if FLAGS.is_eval:
-        egta_solver.observe(logger)
+    # if FLAGS.is_eval:
+    #     egta_solver.observe(logger)
 
 
 def main(argv):
