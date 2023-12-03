@@ -1,6 +1,6 @@
 absl_py==2.0.0
 gymnasium==0.29.1
 numpy==1.24.3
-pettingzoo==1.24.1
+pettingzoo==1.24.2
 pygambit==16.1.0a4
-scipy==1.11.4
+scipy==1.10.1
