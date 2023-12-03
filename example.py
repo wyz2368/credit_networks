@@ -80,12 +80,9 @@ def egta_runner(env, checkpoint_dir):
         egta_solver.observe(logger)
 
 
-
-
-
 def main(argv):
-    if len(argv) > 1:
-        raise app.UsageError("Too many command-line arguments.")
+    # if len(argv) > 1:
+    #     raise app.UsageError("Too many command-line arguments.")
 
     seed = np.random.randint(0, 10000)
     # random.seed(10)
