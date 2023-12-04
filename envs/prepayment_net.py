@@ -5,7 +5,7 @@ This is a PettingZoo implementation of a credit network for prepayment.
 import functools
 import random
 
-from classic_EGTA.net_generator import load_pkl
+from envs.net_generator import load_pkl
 
 import numpy as np
 from gymnasium.spaces import MultiBinary, Box
