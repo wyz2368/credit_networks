@@ -37,8 +37,8 @@ def generate_networks(n,
                       ext_high,
                       default_frac=0.5):
     external_asset = np.random.uniform(low=ext_low, high=ext_high, size=n)
-    Lk_r = list(np.random.randint(low=int(n-3), high=n-1, size=n))
-    # Lk_r = [n-1 for _ in range(n)] # Fully connected.
+    # Lk_r = list(np.random.randint(low=int(n-2), high=n-1, size=n))
+    Lk_r = [n-1 for _ in range(n)] # Fully connected.
     rand_bankrupts = np.random.randint(low=0, high=int(default_frac * n))
     shock_id = random.sample(range(n), rand_bankrupts)
     for s in shock_id:
@@ -74,13 +74,13 @@ def generate_all_networks(num_instance,
         networks.append(net)
         # break
 
-    save_path += "networks_10banks_" + str(num_instance) + "ins_" + str(ext_low) + str(ext_high) + "ext_fcm3"
+    save_path += "networks_10banks_" + str(num_instance) + "ins_" + str(ext_low) + str(ext_high) + "ext_fc"
     save_pkl(networks, save_path + ".pkl")
 
 
 if __name__ == "__main__":
     generate_all_networks(num_instance=1000,
                           num_banks=10,
-                          ext_low=40,
-                          ext_high=70,
+                          ext_low=0,
+                          ext_high=40,
                           save_path="../instances/")
