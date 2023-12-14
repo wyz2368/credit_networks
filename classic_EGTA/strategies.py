@@ -5,6 +5,8 @@ import random
 # random.seed(10)
 # np.random.seed(10)
 
+SINK_NODE = True
+
 def subset_sum_with_ids(numbers, target):
     # Generate all possible subsets of (ID, number) pairs
     all_subsets = [combo for i in range(1, len(numbers) + 1) for combo in combinations(numbers, i)]
@@ -40,6 +42,8 @@ def random_strategy(player, external_assets, adj_matrix):
     liabilities = np.squeeze(adj_matrix[player, :])
     feasible_set = []
     for i, liability in enumerate(liabilities):
+        if SINK_NODE and i == len(external_assets)-1:
+            continue
         if i == player:
             continue
         if external_assets[player] >= liability and liability > 0:
@@ -106,7 +110,10 @@ def ultruism_strategy(player, external_assets, adj_matrix):
     external_asset = external_assets[player]
     if np.sum(incoming_payment) + external_asset < np.sum(liability): # insolvent.
         selected_banks = []
-        pairs = list(zip(range(len(external_assets)), liability))
+        if SINK_NODE:
+            pairs = list(zip(range(len(external_assets)-1), liability[:-1]))
+        else:
+            pairs = list(zip(range(len(external_assets)), liability))
         sorted_pairs = sorted(pairs, key=lambda x: x[1], reverse=True)
         for pair in sorted_pairs:
             if pair[1] == 0:
@@ -134,15 +141,15 @@ PREPAYMENT_STRATEGIES = {
 
 ### TEST ###
 
-external_assets = [2, 0, 5, 0]
-
-adj_m = np.array([
-    [0, 4, 4, 1],
-    [0, 0, 2, 0],
-    [5, 3, 0, 2],
-    [0, 0, 1, 0]])
-
-ALPHA = BETA = 0.5
+# external_assets = [2, 0, 5, 0]
+#
+# adj_m = np.array([
+#     [0, 4, 4, 1],
+#     [0, 0, 2, 0],
+#     [5, 3, 0, 2],
+#     [0, 0, 1, 0]])
+#
+# ALPHA = BETA = 0.5
 #
 # # ids = random_strategy(player=2, external_assets=external_assets, adj_matrix=adj_m)
 # ids = max_incoming_payment_strategy(player=2, external_assets=external_assets, adj_matrix=adj_m)

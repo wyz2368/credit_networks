@@ -195,7 +195,7 @@ class Prepayment_Net(ParallelEnv):
         return all_zeros
 
 
-    def step(self, actions):
+    def step(self, actions, pure=False):
         """
         step(action) takes in an action for each agent and should return the
         - observations
@@ -236,12 +236,14 @@ class Prepayment_Net(ParallelEnv):
             observations = self.state
 
         else:
-            # print("before:\n", external_assets)
-            # print("before:\n", adj_m)
+            # if pure:
+            #     print("before:\n", external_assets)
+            #     print("before:\n", adj_m)
             new_external_assets, new_adj_matrix = self.apply_actions(adj_m, external_assets, actions)
 
-            # print(new_external_assets)
-            # print(new_adj_matrix)
+            # if pure:
+            #     print("after:\n",new_external_assets)
+            #     print("after:\n",new_adj_matrix)
 
             rewards = {}
             for agent in self.agents:

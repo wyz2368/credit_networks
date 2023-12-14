@@ -4,6 +4,7 @@ from absl import app
 from absl import flags
 import logging
 import numpy as np
+import random
 
 from envs.prepayment_net import create_env, Prepayment_Net
 from classic_EGTA.egta_solver import EGTASolver
@@ -14,13 +15,14 @@ FLAGS = flags.FLAGS
 # Game-related
 flags.DEFINE_string("game_name", "prepayment_game", "Game name.")
 flags.DEFINE_integer("num_banks", 10, "The number of players.")
-flags.DEFINE_integer("sim_per_profile", 1, "The number of simulations per profile.")
+flags.DEFINE_integer("sim_per_profile", 5, "The number of simulations per profile.")
 flags.DEFINE_integer("reduce_num_players", 4, "The number of players in the reduced game.")
-flags.DEFINE_integer("num_rounds", 1, "The max number of time steps for truncation.")
+flags.DEFINE_integer("num_rounds", 10, "The max number of time steps for truncation.")
 flags.DEFINE_float("default_cost", 0.5, "Default cost")
 flags.DEFINE_string("utility_type", "Bank_asset", "Options: Bank_asset, Bank_equity")
 flags.DEFINE_string("sample_type", "enum", "Options: random, enum")
-flags.DEFINE_string("instance_path", "../instances/networks_10banks_1000ins_4070ext.pkl", "Path to instances.")
+# flags.DEFINE_string("instance_path", "../instances/networks_10banks_1000ins_4070ext.pkl", "Path to instances.")
+flags.DEFINE_string("instance_path", "../instances/networks_10banks_1000ins_40100ext_sn5b.pkl", "Path to instances.")
 flags.DEFINE_bool("is_eval", True, "Whether run a complete evaluation if True")
 
 
@@ -75,6 +77,11 @@ def egta_runner(env, checkpoint_dir):
     logger.info("Pure Equilibria: {}".format(pure_equilibria))
     logger.info("RD Equilibria: {}".format(RD_equilibria))
 
+    # reduced_game = egta_solver.get_reduced_game()
+    # for profile in reduced_game:
+    #     print(profile, reduced_game[profile])
+
+
     # Evaluation
     # if FLAGS.is_eval:
     #     egta_solver.observe(logger)
@@ -85,8 +92,8 @@ def main(argv):
     #     raise app.UsageError("Too many command-line arguments.")
 
     seed = np.random.randint(0, 10000)
-    # random.seed(10)
-    # np.random.seed(10)
+    random.seed(10)
+    np.random.seed(10)
 
     # Load game. This should be adaptive to different environments.
     prepayment_network = Prepayment_Net(num_banks=FLAGS.num_banks,
@@ -102,7 +109,7 @@ def main(argv):
         os.makedirs(FLAGS.root_result_folder)
 
     checkpoint_dir = FLAGS.game_name
-    checkpoint_dir = checkpoint_dir + '_ut_' + FLAGS.utility_type + '_dfcost_' + str(FLAGS.default_cost) + "_ins_" + FLAGS.instance_path[-11:-4] + '_se_' + str(seed) + '_' + datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
+    checkpoint_dir = checkpoint_dir + '_ut_' + FLAGS.utility_type + '_dfcost_' + str(FLAGS.default_cost) + "_ins_" + FLAGS.instance_path[-15:-4] + '_se_' + str(seed) + '_' + datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
     checkpoint_dir = os.path.join(os.getcwd(), FLAGS.root_result_folder, checkpoint_dir)
 
     if not os.path.exists(checkpoint_dir):

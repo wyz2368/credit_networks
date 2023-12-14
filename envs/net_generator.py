@@ -57,6 +57,33 @@ def generate_networks(n,
     num_edges = np.array(Lk_r).sum()
     return external_asset, adj, num_edges
 
+def generate_networks_with_sink_nodes(n,
+                                      ext_low,
+                                      ext_high,
+                                      rand_bankrupts=5):
+    # Add a sink node.
+    total_n = n + 1
+    external_asset = np.random.uniform(low=ext_low, high=ext_high, size=total_n)
+    Lk_r = list(np.random.randint(low=1, high=n-1, size=n))
+    # Lk_r = [n-1 for _ in range(n)] # Fully connected.
+    shock_id = random.sample(range(n), rand_bankrupts)
+    for s in shock_id:
+        external_asset[s] = ext_low
+
+    adj = np.zeros((total_n, total_n))
+    for i in range(len(Lk_r)):
+        alist = list(range(0, n))
+        alist.remove(i)
+        Cdt_index = np.array(random.sample(alist, Lk_r[i]))
+        for j in Cdt_index:
+            homo_lb = [10, 20, 35]
+            adj[i][j] = np.random.randint(0, random.choice(homo_lb))
+
+        adj[i][total_n-1] = 20
+
+    num_edges = np.array(Lk_r).sum()
+    return external_asset, adj, num_edges
+
 def generate_all_networks(num_instance,
                           num_banks,
                           ext_low,
@@ -64,23 +91,27 @@ def generate_all_networks(num_instance,
                           save_path="../instances/"):
     networks = []
     for i in range(num_instance):
-        external_asset, adj, num_edges = generate_networks(num_banks,
-                                                           ext_low,
-                                                           ext_high)
+        external_asset, adj, num_edges = generate_networks_with_sink_nodes(num_banks,
+                                                                           ext_low,
+                                                                           ext_high)
         net = {}
         net["external_asset"] = external_asset
         net["adj"] = adj
         net["num_edges"] = num_edges
         networks.append(net)
+
+        # print(external_asset)
+        # print(adj)
+        # print(external_asset - np.sum(adj, axis=1))
         # break
 
-    save_path += "networks_10banks_" + str(num_instance) + "ins_" + str(ext_low) + str(ext_high) + "ext_fc"
+    save_path += "networks_10banks_" + str(num_instance) + "ins_" + str(ext_low) + str(ext_high) + "ext_sn5b"
     save_pkl(networks, save_path + ".pkl")
 
 
 if __name__ == "__main__":
     generate_all_networks(num_instance=1000,
                           num_banks=10,
-                          ext_low=0,
-                          ext_high=40,
+                          ext_low=40,
+                          ext_high=100,
                           save_path="../instances/")

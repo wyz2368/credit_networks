@@ -168,7 +168,8 @@ class EGTASolver:
         # When sample_type is "enum", it returns an instance given by an iterator.
         # When sample_type is "random", it returns an instance randomly sampled from the generator.
         for i in range(self.sim_per_profile):
-            # print("-------")
+            # if is_pure_symmetric(profile, 10):
+            #     print("-------")
             observations, infos = self.env.reset()
             traj_rewards = []
             while self.env.agents:
@@ -184,14 +185,16 @@ class EGTASolver:
                     binary_action = to_binary_action(self.num_players, vanilla_action)
                     actions[agent] = binary_action
 
-                # print("actions:", actions)
+                # if is_pure_symmetric(profile, 10):
+                #     print("actions:", actions)
 
-                observations, rewards, terminations, truncations, infos = self.env.step(actions)
+                observations, rewards, terminations, truncations, infos = self.env.step(actions, is_pure_symmetric(profile, 10))
                 traj_rewards.append([rewards[agent] for agent in self.env.possible_agents])
-
             # Sum of immediate rewards, not discounted.
             averaged_rewards.append(np.sum(traj_rewards, axis=0))
-            # print("%%averaged_rewards:", averaged_rewards)
+            # if is_pure_symmetric(profile, 10):
+            #     print("obs:", observations['player_0'])
+            #     print("%%averaged_rewards:",profile, averaged_rewards)
 
         # Average over instances.
         return np.mean(averaged_rewards, axis=0)
@@ -215,6 +218,7 @@ class EGTASolver:
                 payoffs = average_payoff_per_policy(average_result=averaged_rewards,
                                                     original_profile=original_profile)
                 payoffs_over_original_profiles.append(payoffs)
+
 
                 # For evaluation
                 self.full_symmetric_game[tuple(original_profile)] = payoffs

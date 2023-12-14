@@ -149,9 +149,26 @@ def clearing_instances(load_path="./instances/networks_10banks_1000ins.pkl",
 #     [0, 0, 2, 0],
 #     [5, 3, 0, 2],
 #     [0, 0, 1, 0]])
+
+# external_assets = [1, 2]
 #
-# external_assets = np.random.randint(0, 10, 10)
-# adj_m = np.random.randint(0, 10, (10, 10))
+# adj_m = np.array([
+#     [0, 2],
+#     [4, 0]])
+
+# external_assets = [2, 4]
+#
+# adj_m = np.array([
+#     [0, 0],
+#     [5, 0]])
+
+# external_assets = [0, 4, 6, 0]
+#
+# adj_m = np.array([
+#     [0, 0, 0, 12],
+#     [0, 0, 2, 2],
+#     [8, 0, 0, 0],
+#     [0, 0, 0, 0]])
 #
 #
 # ALPHA = BETA = 0.5
