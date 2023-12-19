@@ -102,10 +102,10 @@ def generate_all_networks(num_instance,
 
         # print(external_asset)
         # print(adj)
-        # print(external_asset - np.sum(adj, axis=1))
+        # print(external_asset + np.sum(adj, axis=0) - np.sum(adj, axis=1))
         # break
 
-    save_path += "networks_10banks_" + str(num_instance) + "ins_" + str(ext_low) + str(ext_high) + "ext_fcsn5b"
+    save_path += "networks_10banks_" + str(num_instance) + "ins_" + str(ext_low) + str(ext_high) + "ext_fcsn5b2"
     save_pkl(networks, save_path + ".pkl")
 
 
