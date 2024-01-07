@@ -134,7 +134,7 @@ PREPAYMENT_STRATEGIES = {
     "random_strategy":random_strategy,
     "max_incoming_payment_strategy":max_incoming_payment_strategy,
     "max_incoming_payment_greedy_strategy":max_incoming_payment_greedy_strategy,
-    "heuristic_belief_strategy":heuristic_belief_strategy,
+    # "heuristic_belief_strategy":heuristic_belief_strategy,
     "ultruism_strategy":ultruism_strategy
 }
 

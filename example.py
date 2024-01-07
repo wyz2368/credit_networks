@@ -67,6 +67,8 @@ def egta_runner(env, checkpoint_dir):
 
     initial_strategies = init_strategies()
 
+    logger.info("Strategy set: {}".format(initial_strategies))
+
     egta_solver = EGTASolver(env=env,
                              sim_per_profile=FLAGS.sim_per_profile,
                              initial_strategies=initial_strategies,
