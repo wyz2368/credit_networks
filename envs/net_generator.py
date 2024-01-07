@@ -65,8 +65,8 @@ def generate_networks_with_sink_nodes(n,
     # Add a sink node.
     total_n = n + 1
     external_asset = np.random.uniform(low=ext_low, high=ext_high, size=total_n)
-    Lk_r = list(np.random.randint(low=1, high=n-1, size=n))
-    # Lk_r = [n-1 for _ in range(n)] # Fully connected.
+    # Lk_r = list(np.random.randint(low=1, high=n-1, size=n))
+    Lk_r = [n-1 for _ in range(n)] # Fully connected.
     shock_id = random.sample(range(n), rand_bankrupts)
     for s in shock_id:
         external_asset[s] = ext_low
@@ -126,6 +126,6 @@ def generate_all_networks(num_instance,
 if __name__ == "__main__":
     generate_all_networks(num_instance=1000,
                           num_banks=10,
-                          ext_low=20,
-                          ext_high=60,
+                          ext_low=25,
+                          ext_high=65,
                           save_path="../instances/")
