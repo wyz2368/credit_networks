@@ -126,6 +126,6 @@ def generate_all_networks(num_instance,
 if __name__ == "__main__":
     generate_all_networks(num_instance=1000,
                           num_banks=10,
-                          ext_low=25,
-                          ext_high=65,
+                          ext_low=20,
+                          ext_high=60,
                           save_path="../instances/")
