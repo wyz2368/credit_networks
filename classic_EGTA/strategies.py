@@ -130,11 +130,11 @@ def noop_strategy(player, external_assets, adj_matrix):
     return []
 
 PREPAYMENT_STRATEGIES = {
-    "noop_strategy":noop_strategy,
+    # "noop_strategy":noop_strategy,
     "random_strategy":random_strategy,
     "max_incoming_payment_strategy":max_incoming_payment_strategy,
     "max_incoming_payment_greedy_strategy":max_incoming_payment_greedy_strategy,
-    "heuristic_belief_strategy":heuristic_belief_strategy,
+    # "heuristic_belief_strategy":heuristic_belief_strategy,
     "ultruism_strategy":ultruism_strategy
 }
 
