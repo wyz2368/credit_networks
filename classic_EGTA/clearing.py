@@ -1,6 +1,6 @@
 import numpy as np
 from scipy import optimize
-from envs.net_generator import load_pkl, save_pkl
+# from envs.net_generator import load_pkl, save_pkl
 
 def clearing(external_asset, adj_m, ALPHA, BETA):
     bank_number = len(adj_m)  # the number of banks in the financial network
@@ -105,34 +105,34 @@ def clearing(external_asset, adj_m, ALPHA, BETA):
             return payments_matrix, Bank_equity, Bank_asset, SW_equity, SW_asset, Default_bank, Recover_rate
 
 
-def clearing_instances(load_path="./instances/networks_10banks_1000ins.pkl",
-                       save_path="./instances/",
-                       ALPHA=0.5,
-                       BETA=0.5):
-    networks = load_pkl(load_path)
-    all_stats = []
-    for network in networks:
-        external_assets = network["external_asset"]
-        adj_m = network["adj"]
-
-        payments_matrix, Bank_equity, Bank_asset, SW_equity, SW_asset, Default_bank, Recover_rate = clearing(
-            external_assets, adj_m, ALPHA, BETA)
-        stat = {
-            "payments_matrix": payments_matrix,
-            "Bank_equity": Bank_equity,
-            "Bank_asset": Bank_asset,
-            "SW_equity": SW_equity,
-            "SW_asset": SW_asset,
-            "Default_bank": Default_bank,
-            "Recover_rate": Recover_rate
-        }
-        all_stats.append(stat)
-
-    save_path += "networks_10banks_1000ins_" + str(ALPHA) + "_solution.pkl"
-
-    save_pkl(all_stats, save_path)
-
-    return all_stats
+# def clearing_instances(load_path="./instances/networks_10banks_1000ins.pkl",
+#                        save_path="./instances/",
+#                        ALPHA=0.5,
+#                        BETA=0.5):
+#     networks = load_pkl(load_path)
+#     all_stats = []
+#     for network in networks:
+#         external_assets = network["external_asset"]
+#         adj_m = network["adj"]
+#
+#         payments_matrix, Bank_equity, Bank_asset, SW_equity, SW_asset, Default_bank, Recover_rate = clearing(
+#             external_assets, adj_m, ALPHA, BETA)
+#         stat = {
+#             "payments_matrix": payments_matrix,
+#             "Bank_equity": Bank_equity,
+#             "Bank_asset": Bank_asset,
+#             "SW_equity": SW_equity,
+#             "SW_asset": SW_asset,
+#             "Default_bank": Default_bank,
+#             "Recover_rate": Recover_rate
+#         }
+#         all_stats.append(stat)
+#
+#     save_path += "networks_10banks_1000ins_" + str(ALPHA) + "_solution.pkl"
+#
+#     save_pkl(all_stats, save_path)
+#
+#     return all_stats
 
 # if __name__ == "__main__":
 #     for alpha in np.linspace(0, 1, 11):

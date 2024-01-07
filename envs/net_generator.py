@@ -2,6 +2,7 @@ import numpy as np
 import random
 import pickle
 import os
+from classic_EGTA.clearing import clearing
 
 def isExist(path):
     """
@@ -60,12 +61,12 @@ def generate_networks(n,
 def generate_networks_with_sink_nodes(n,
                                       ext_low,
                                       ext_high,
-                                      rand_bankrupts=5):
+                                      rand_bankrupts=7):
     # Add a sink node.
     total_n = n + 1
     external_asset = np.random.uniform(low=ext_low, high=ext_high, size=total_n)
-    # Lk_r = list(np.random.randint(low=1, high=n-1, size=n))
-    Lk_r = [n-1 for _ in range(n)] # Fully connected.
+    Lk_r = list(np.random.randint(low=1, high=n-1, size=n))
+    # Lk_r = [n-1 for _ in range(n)] # Fully connected.
     shock_id = random.sample(range(n), rand_bankrupts)
     for s in shock_id:
         external_asset[s] = ext_low
@@ -103,15 +104,28 @@ def generate_all_networks(num_instance,
         # print(external_asset)
         # print(adj)
         # print(external_asset + np.sum(adj, axis=0) - np.sum(adj, axis=1))
+        #
+        # ALPHA = BETA = 0.5
+        #
+        # payments_matrix, Bank_equity, Bank_asset, SW_equity, SW_asset, Default_bank, Recover_rate = clearing(external_asset, adj, ALPHA, BETA)
+        # print(payments_matrix)
+        # print(Bank_equity)
+        # print(Bank_asset)
+        # print(SW_equity)
+        # print(SW_asset)
+        # print(Default_bank)
+        # print(Recover_rate)
+        #
+        #
         # break
 
-    save_path += "networks_10banks_" + str(num_instance) + "ins_" + str(ext_low) + str(ext_high) + "ext_fcsn5b2"
+    save_path += "networks_10banks_" + str(num_instance) + "ins_" + str(ext_low) + str(ext_high) + "ext_sn7b"
     save_pkl(networks, save_path + ".pkl")
 
 
 if __name__ == "__main__":
     generate_all_networks(num_instance=1000,
                           num_banks=10,
-                          ext_low=40,
-                          ext_high=100,
+                          ext_low=25,
+                          ext_high=65,
                           save_path="../instances/")
