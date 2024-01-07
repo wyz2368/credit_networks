@@ -8,7 +8,7 @@ from classic_EGTA.symmetric_utils import create_profiles, find_pure_equilibria, 
 from classic_EGTA.player_reduction import deviation_preserve_reduction
 from classic_EGTA.nash_solvers.pygambit_solver import pygbt_solve_matrix_games
 from classic_EGTA.nash_solvers.replicator_dynamics import replicator_dynamics
-from classic_EGTA.clearing import save_pkl
+from envs.net_generator import save_pkl
 from classic_EGTA.evaluation import evaluate
 
 def to_binary_action(num_actions, vanilla_action):
