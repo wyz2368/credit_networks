@@ -150,11 +150,11 @@ def clearing(external_asset, adj_m, ALPHA, BETA):
 #     [5, 3, 0, 2],
 #     [0, 0, 1, 0]])
 
-external_assets = [5, 5]
-
-adj_m = np.array([
-    [0, 2],
-    [0, 0]])
+# external_assets = [5, 5]
+#
+# adj_m = np.array([
+#     [0, 2],
+#     [0, 0]])
 
 # external_assets = [2, 4]
 #
@@ -171,13 +171,13 @@ adj_m = np.array([
 #     [0, 0, 0, 0]])
 #
 #
-ALPHA = BETA = 0.5
-
-payments_matrix, Bank_equity, Bank_asset, SW_equity, SW_asset, Default_bank, Recover_rate = clearing(external_assets, adj_m, ALPHA, BETA)
-print(payments_matrix)
-print(Bank_equity)
-print(Bank_asset)
-print(SW_equity)
-print(SW_asset)
-print(Default_bank)
-print(Recover_rate)
+# ALPHA = BETA = 0.5
+#
+# payments_matrix, Bank_equity, Bank_asset, SW_equity, SW_asset, Default_bank, Recover_rate = clearing(external_assets, adj_m, ALPHA, BETA)
+# print(payments_matrix)
+# print(Bank_equity)
+# print(Bank_asset)
+# print(SW_equity)
+# print(SW_asset)
+# print(Default_bank)
+# print(Recover_rate)
