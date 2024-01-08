@@ -125,17 +125,37 @@ def ultruism_strategy(player, external_assets, adj_matrix):
     else:
         return []
 
+def check_and_random_strategy(player, external_assets, adj_matrix):
+    incoming_payment = np.squeeze(adj_matrix[:, player])
+    liability = np.squeeze(adj_matrix[player, :])
+    external_asset = external_assets[player]
+    if np.sum(incoming_payment) + external_asset < np.sum(liability):  # insolvent.
+        return random_strategy(player, external_assets, adj_matrix)
+    else:
+        return []
+
+def check_and_heuristic_belief_strategy(player, external_assets, adj_matrix):
+    incoming_payment = np.squeeze(adj_matrix[:, player])
+    liability = np.squeeze(adj_matrix[player, :])
+    external_asset = external_assets[player]
+    if np.sum(incoming_payment) + external_asset < np.sum(liability):  # insolvent.
+        return ultruism_strategy(player, external_assets, adj_matrix)
+    else:
+        return []
+
 
 def noop_strategy(player, external_assets, adj_matrix):
     return []
 
 PREPAYMENT_STRATEGIES = {
-    # "noop_strategy":noop_strategy,
-    "random_strategy":random_strategy,
-    "max_incoming_payment_strategy":max_incoming_payment_strategy,
-    "max_incoming_payment_greedy_strategy":max_incoming_payment_greedy_strategy,
-    # "heuristic_belief_strategy":heuristic_belief_strategy,
-    # "ultruism_strategy":ultruism_strategy
+    "noop_strategy":noop_strategy,
+    # "random_strategy":random_strategy,
+    # "max_incoming_payment_strategy":max_incoming_payment_strategy,
+    # "max_incoming_payment_greedy_strategy":max_incoming_payment_greedy_strategy,
+    "heuristic_belief_strategy":heuristic_belief_strategy,
+    "ultruism_strategy":ultruism_strategy,
+    "check_and_random_strategy":check_and_random_strategy,
+    "check_and_heuristic_belief_strategy":check_and_heuristic_belief_strategy
 }
 
 
