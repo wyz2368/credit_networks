@@ -79,9 +79,9 @@ def egta_runner(env, checkpoint_dir):
     logger.info("Pure Equilibria: {}".format(pure_equilibria))
     logger.info("RD Equilibria: {}".format(RD_equilibria))
 
-    reduced_game = egta_solver.get_reduced_game()
-    for profile in reduced_game:
-        print(profile, reduced_game[profile])
+    # reduced_game = egta_solver.get_reduced_game()
+    # for profile in reduced_game:
+    #     print(profile, reduced_game[profile])
 
 
     # Evaluation
