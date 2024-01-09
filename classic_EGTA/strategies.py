@@ -155,7 +155,7 @@ PREPAYMENT_STRATEGIES = {
     # "heuristic_belief_strategy":heuristic_belief_strategy,
     "ultruism_strategy":ultruism_strategy,
     "check_and_random_strategy":check_and_random_strategy,
-    "check_and_heuristic_belief_strategy":check_and_heuristic_belief_strategy
+    # "check_and_heuristic_belief_strategy":check_and_heuristic_belief_strategy
 }
 
 
