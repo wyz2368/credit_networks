@@ -9,20 +9,24 @@ import random
 from envs.prepayment_net import create_env, Prepayment_Net
 from classic_EGTA.egta_solver import EGTASolver
 from classic_EGTA.strategies import PREPAYMENT_STRATEGIES
+from classic_EGTA.evaluation_reduced import get_social_optimum, mixed_strategy_expected_payoffs
 
 
 FLAGS = flags.FLAGS
 # Game-related
 flags.DEFINE_string("game_name", "prepayment_game", "Game name.")
 flags.DEFINE_integer("num_banks", 10, "The number of players.")
-flags.DEFINE_integer("sim_per_profile", 5, "The number of simulations per profile.")
+flags.DEFINE_integer("sim_per_profile", 100, "The number of simulations per profile.")
 flags.DEFINE_integer("reduce_num_players", 4, "The number of players in the reduced game.")
 flags.DEFINE_integer("num_rounds", 10, "The max number of time steps for truncation.")
-flags.DEFINE_float("default_cost", 0.5, "Default cost")
+flags.DEFINE_float("default_cost", 0.1, "Default cost")
 flags.DEFINE_string("utility_type", "Bank_asset", "Options: Bank_asset, Bank_equity")
 flags.DEFINE_string("sample_type", "enum", "Options: random, enum")
+flags.DEFINE_string("instance_path", "../instances/networks_10banks_436better_ins_4070ext.pkl", "Path to instances.")
+# flags.DEFINE_string("instance_path", "../instances/tests/networks_10banks_10000ins_4070ext_test.pkl", "Path to instances.")
 # flags.DEFINE_string("instance_path", "../instances/networks_10banks_1000ins_4070ext.pkl", "Path to instances.")
-flags.DEFINE_string("instance_path", "../instances/networks_10banks_1000ins_40100ext_sn5b.pkl", "Path to instances.")
+# flags.DEFINE_string("instance_path", "../instances/networks_10banks_1000ins_40100ext_sn5b.pkl", "Path to instances.")
+# flags.DEFINE_string("instance_path", "../instances/networks_10banks_1000ins_70120ext_sn5b.pkl", "Path to instances.")
 flags.DEFINE_bool("is_eval", True, "Whether run a complete evaluation if True")
 
 
@@ -79,9 +83,21 @@ def egta_runner(env, checkpoint_dir):
     logger.info("Pure Equilibria: {}".format(pure_equilibria))
     logger.info("RD Equilibria: {}".format(RD_equilibria))
 
-    # reduced_game = egta_solver.get_reduced_game()
+    reduced_game = egta_solver.get_reduced_game()
     # for profile in reduced_game:
     #     print(profile, reduced_game[profile])
+
+    social_optimum, optimum_profile = get_social_optimum(reduced_game)
+    logger.info("social_optimum: {}".format(social_optimum))
+    logger.info("optimum_profile: {}".format(optimum_profile))
+
+    for i, ne in enumerate(pure_equilibria):
+        logger.info("NE: {}".format(ne))
+        logger.info("Expected Payoff: {}".format(reduced_game[tuple(ne)]))
+
+    mixed_ne = RD_equilibria[0][0]
+    mixed_ne_payoff = mixed_strategy_expected_payoffs(reduced_game, mixed_ne)
+    logger.info("Mixed Expected Payoff: {}".format(mixed_ne_payoff))
 
 
     # Evaluation

@@ -89,12 +89,16 @@ def generate_all_networks(num_instance,
                           num_banks,
                           ext_low,
                           ext_high,
-                          save_path="../instances/"):
+                          save_path="../instances/tests/"):
     networks = []
     for i in range(num_instance):
-        external_asset, adj, num_edges = generate_networks_with_sink_nodes(num_banks,
-                                                                           ext_low,
-                                                                           ext_high)
+        # external_asset, adj, num_edges = generate_networks_with_sink_nodes(num_banks,
+        #                                                                    ext_low,
+        #                                                                    ext_high)
+
+        external_asset, adj, num_edges = generate_networks(num_banks,
+                                                           ext_low,
+                                                           ext_high)
         net = {}
         net["external_asset"] = external_asset
         net["adj"] = adj
@@ -119,13 +123,13 @@ def generate_all_networks(num_instance,
         #
         # break
 
-    save_path += "networks_10banks_" + str(num_instance) + "ins_" + str(ext_low) + str(ext_high) + "ext_sn7b"
+    save_path += "networks_10banks_" + str(num_instance) + "ins_" + str(ext_low) + str(ext_high) + "ext_test"
     save_pkl(networks, save_path + ".pkl")
 
 
 if __name__ == "__main__":
-    generate_all_networks(num_instance=1000,
+    generate_all_networks(num_instance=10000,
                           num_banks=10,
-                          ext_low=25,
-                          ext_high=65,
-                          save_path="../instances/")
+                          ext_low=40,
+                          ext_high=70,
+                          save_path="../instances/tests/")

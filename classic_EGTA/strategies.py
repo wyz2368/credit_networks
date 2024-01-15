@@ -84,25 +84,32 @@ def max_incoming_payment_greedy_strategy(player, external_assets, adj_matrix):
 
     return selected_banks
 
-def heuristic_belief_strategy(player, external_assets, adj_matrix, mu=0, sigma=5, discount=0.8):
+def heuristic_belief_strategy(player, external_assets, adj_matrix, mu=0, sigma=5, discount=0.1):
     noisy_external_assets = external_assets + np.random.normal(mu, sigma, len(external_assets))
     noisy_external_assets[noisy_external_assets < 0] = 0
     # print(noisy_external_assets)
     liabilities = np.squeeze(adj_matrix[player, :])
     incoming_payment = np.squeeze(adj_matrix[:, player])
-    noisy_estimate = noisy_external_assets * discount + liabilities
     selected_banks = []
+    filtered_liability = []
 
-    for i, est in enumerate(noisy_estimate):
+    for i in range(len(external_assets)):
         if i == player:
             continue
-        if est >= incoming_payment[i] \
-                and incoming_payment[i] > noisy_external_assets[i] * discount \
+        if noisy_external_assets[i] + liabilities[i] >= incoming_payment[i] \
+                and incoming_payment[i] > noisy_external_assets[i] + liabilities[i] * discount \
                 and external_assets[player] >= liabilities[i] and incoming_payment[i] != 0 and liabilities[i] != 0:
-            selected_banks.append(i)
+            filtered_liability.append((i, liabilities[i]))
 
-    return greedy_sampling(selected_banks, liabilities, external_assets[player])
-    # return selected_banks
+    sorted_pairs = sorted(filtered_liability, key=lambda x: x[1], reverse=True)
+    for pair in sorted_pairs:
+        if pair[1] == 0:
+            break
+        selected_banks.append(pair[0])
+        break
+
+    # return greedy_sampling(selected_banks, liabilities, external_assets[player])
+    return selected_banks
 
 def ultruism_strategy(player, external_assets, adj_matrix):
     incoming_payment = np.squeeze(adj_matrix[:, player])
@@ -139,7 +146,7 @@ def check_and_heuristic_belief_strategy(player, external_assets, adj_matrix):
     liability = np.squeeze(adj_matrix[player, :])
     external_asset = external_assets[player]
     if np.sum(incoming_payment) + external_asset < np.sum(liability):  # insolvent.
-        return ultruism_strategy(player, external_assets, adj_matrix)
+        return heuristic_belief_strategy(player, external_assets, adj_matrix)
     else:
         return []
 
@@ -148,15 +155,15 @@ def noop_strategy(player, external_assets, adj_matrix):
     return []
 
 PREPAYMENT_STRATEGIES = {
-    # "noop_strategy":noop_strategy,
-    "random_strategy":random_strategy,
-    "max_incoming_payment_strategy":max_incoming_payment_strategy,
-    "max_incoming_payment_greedy_strategy":max_incoming_payment_greedy_strategy,
-    # "heuristic_belief_strategy":heuristic_belief_strategy,
+    "noop_strategy":noop_strategy,
+    # "random_strategy":random_strategy,
+    # "max_incoming_payment_strategy":max_incoming_payment_strategy,
+    # "max_incoming_payment_greedy_strategy":max_incoming_payment_greedy_strategy,
+    "heuristic_belief_strategy":heuristic_belief_strategy,
     "ultruism_strategy":ultruism_strategy,
-    "check_and_random_strategy":check_and_random_strategy,
-    # "check_and_heuristic_belief_strategy":check_and_heuristic_belief_strategy
-}
+    # "check_and_random_strategy":check_and_random_strategy,
+    "check_and_heuristic_belief_strategy":check_and_heuristic_belief_strategy
+ }
 
 
 ### TEST ###

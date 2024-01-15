@@ -167,12 +167,15 @@ class EGTASolver:
         # When network instance is sampled from the generator, env.reset will sample a new instance.
         # When sample_type is "enum", it returns an instance given by an iterator.
         # When sample_type is "random", it returns an instance randomly sampled from the generator.
+        non_empty_actions = []
         for i in range(self.sim_per_profile):
             # if is_pure_symmetric(profile, 10):
             #     print("-------")
             observations, infos = self.env.reset()
             traj_rewards = []
+            k = 0
             while self.env.agents:
+                k += 1
                 actions = {}
                 for id, agent in enumerate(self.env.agents):
                     adj_matrix_asset = observations[agent]
@@ -182,21 +185,29 @@ class EGTASolver:
                     vanilla_action = current_policy(player=id,
                                                      external_assets=external_assets,
                                                      adj_matrix=adj_m)
+
                     binary_action = to_binary_action(self.num_players, vanilla_action)
                     actions[agent] = binary_action
 
                 # if is_pure_symmetric(profile, 10):
                 #     print("actions:", actions)
 
+                # print("actions:", actions)
+
                 observations, rewards, terminations, truncations, infos = self.env.step(actions, is_pure_symmetric(profile, 10))
                 traj_rewards.append([rewards[agent] for agent in self.env.possible_agents])
             # Sum of immediate rewards, not discounted.
+            if k > 1:
+                non_empty_actions.append(i)
             averaged_rewards.append(np.sum(traj_rewards, axis=0))
             # if is_pure_symmetric(profile, 10):
             #     print("obs:", observations['player_0'])
             #     print("%%averaged_rewards:",profile, averaged_rewards)
 
         # Average over instances.
+        # print(averaged_rewards)
+        save_pkl(averaged_rewards, path=self.checkpoint_dir + "/averaged_rewards.pkl")
+        save_pkl(non_empty_actions, path=self.checkpoint_dir + "/valid_ins_idx.pkl")
         return np.mean(averaged_rewards, axis=0)
 
     def update_reduced_game_states(self):
@@ -204,6 +215,14 @@ class EGTASolver:
         Simulate all profiles in the reduced game.
         """
         for reduced_profile in self.reduced_profiles:
+            # if tuple(reduced_profile) != (3,1):
+                # for i, count in enumerate(reduced_profile):
+                #     if count == 0:
+                #         self.reduced_game[tuple(reduced_profile)].append(None)
+                #     else:
+                #         self.reduced_game[tuple(reduced_profile)].append(0)
+                # continue
+
             # Compute the corresponding profile in the original game.
             # original_profiles is a list of profiles, one for each deviating strategy.
             original_profiles = deviation_preserve_reduction(reduced_profile=reduced_profile,
