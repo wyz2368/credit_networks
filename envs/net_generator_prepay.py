@@ -38,8 +38,8 @@ def generate_networks(n,
                       ext_high,
                       default_frac=0.5):
     external_asset = np.random.uniform(low=ext_low, high=ext_high, size=n)
-    # Lk_r = list(np.random.randint(low=int(n-2), high=n-1, size=n))
-    Lk_r = [n-1 for _ in range(n)] # Fully connected.
+    Lk_r = list(np.random.randint(low=int(n-2), high=n-1, size=n))
+    # Lk_r = [n-1 for _ in range(n)] # Fully connected.
     rand_bankrupts = np.random.randint(low=0, high=int(default_frac * n))
     shock_id = random.sample(range(n), rand_bankrupts)
     for s in shock_id:
@@ -57,6 +57,7 @@ def generate_networks(n,
             adj[i][j] = np.random.randint(0, random.choice(homo_lb))
     num_edges = np.array(Lk_r).sum()
     return external_asset, adj, num_edges
+
 
 def generate_networks_with_sink_nodes(n,
                                       ext_low,
@@ -123,13 +124,14 @@ def generate_all_networks(num_instance,
         #
         # break
 
-    save_path += "networks_10banks_" + str(num_instance) + "ins_" + str(ext_low) + str(ext_high) + "ext_test"
+    save_path += "networks_10banks_" + str(num_instance) + "ins_" + str(ext_low) + str(ext_high) + "ext"
     save_pkl(networks, save_path + ".pkl")
 
 
 if __name__ == "__main__":
-    generate_all_networks(num_instance=10000,
+    generate_all_networks(num_instance=1000,
                           num_banks=10,
                           ext_low=40,
                           ext_high=70,
-                          save_path="../instances/tests/")
+                          save_path="../instances/merge/")
+                          # save_path="../instances/prepayments/tests/")

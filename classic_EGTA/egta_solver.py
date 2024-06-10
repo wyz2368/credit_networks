@@ -2,13 +2,12 @@
 The main solver for EGTA with player reduction.
 """
 
-
 import numpy as np
 from classic_EGTA.symmetric_utils import create_profiles, find_pure_equilibria, convert_to_full_game
 from classic_EGTA.player_reduction import deviation_preserve_reduction
 from classic_EGTA.nash_solvers.pygambit_solver import pygbt_solve_matrix_games
 from classic_EGTA.nash_solvers.replicator_dynamics import replicator_dynamics
-from envs.net_generator import save_pkl
+from envs.net_generator_prepay import save_pkl
 from classic_EGTA.evaluation import evaluate
 
 def to_binary_action(num_actions, vanilla_action):
@@ -95,7 +94,7 @@ class EGTASolver:
                  checkpoint_dir):
 
         self.env = env
-        self.num_players = self.env.get_num_players()
+        self.num_players = self.env.get_num_players() #TODO: Check this consistent with M/A
         self.policies = initial_strategies
         self.num_policies = len(initial_strategies)
         self.reduce_num_players = reduce_num_players
@@ -113,7 +112,7 @@ class EGTASolver:
         self.full_symmetric_game = {}
         for profile in full_game_profiles:
             self.full_symmetric_game[tuple(profile)] = []
-        self.game_stats = self.init_reduced_game(full_game_profiles)
+        self.game_stats = self.init_reduced_game_stats(full_game_profiles)
 
     def init_reduced_game(self, profiles):
         """
@@ -156,7 +155,7 @@ class EGTASolver:
 
         return current_policies
 
-    def simulation(self, profile):
+    def simulation(self, profile, binary_action_flag=False):
         """
         Simulate the payoffs for strategies in a pure-strategy profile (how many players play each strategy).
         """
@@ -169,30 +168,33 @@ class EGTASolver:
         # When sample_type is "random", it returns an instance randomly sampled from the generator.
         non_empty_actions = []
         for i in range(self.sim_per_profile):
-            # if is_pure_symmetric(profile, 10):
-            #     print("-------")
             observations, infos = self.env.reset()
             traj_rewards = []
             k = 0
             while self.env.agents:
                 k += 1
-                actions = {}
+                if binary_action_flag:
+                    actions = {}
+                else:
+                    actions = []
                 for id, agent in enumerate(self.env.agents):
-                    adj_matrix_asset = observations[agent]
-                    adj_m = adj_matrix_asset[:-1, :]
-                    external_assets = adj_matrix_asset[-1, :]
-                    current_policy = current_policies[agent]
-                    vanilla_action = current_policy(player=id,
-                                                     external_assets=external_assets,
-                                                     adj_matrix=adj_m)
+                    if binary_action_flag:
+                        adj_matrix_asset = observations[agent]
+                        adj_m = adj_matrix_asset[:-1, :]
+                        external_assets = adj_matrix_asset[-1, :]
+                        current_policy = current_policies[agent]
+                        vanilla_action = current_policy(player=id,
+                                                         external_assets=external_assets,
+                                                         adj_matrix=adj_m)
 
-                    binary_action = to_binary_action(self.num_players, vanilla_action)
-                    actions[agent] = binary_action
-
-                # if is_pure_symmetric(profile, 10):
-                #     print("actions:", actions)
-
-                # print("actions:", actions)
+                        binary_action = to_binary_action(self.num_players, vanilla_action)
+                        actions[agent] = binary_action
+                    else:
+                        observation = observations[agent]
+                        current_policy = current_policies[agent]
+                        vanilla_action = current_policy(player=id,
+                                                        observation=observation) # Raw int [1,2,3,4,5]
+                        actions.append(vanilla_action)
 
                 observations, rewards, terminations, truncations, infos = self.env.step(actions, is_pure_symmetric(profile, 10))
                 traj_rewards.append([rewards[agent] for agent in self.env.possible_agents])
@@ -200,14 +202,11 @@ class EGTASolver:
             if k > 1:
                 non_empty_actions.append(i)
             averaged_rewards.append(np.sum(traj_rewards, axis=0))
-            # if is_pure_symmetric(profile, 10):
-            #     print("obs:", observations['player_0'])
-            #     print("%%averaged_rewards:",profile, averaged_rewards)
 
         # Average over instances.
         # print(averaged_rewards)
-        save_pkl(averaged_rewards, path=self.checkpoint_dir + "/averaged_rewards.pkl")
-        save_pkl(non_empty_actions, path=self.checkpoint_dir + "/valid_ins_idx.pkl")
+        # save_pkl(averaged_rewards, path=self.checkpoint_dir + "/averaged_rewards.pkl")
+        # save_pkl(non_empty_actions, path=self.checkpoint_dir + "/valid_ins_idx.pkl")
         return np.mean(averaged_rewards, axis=0)
 
     def update_reduced_game_states(self):
@@ -215,14 +214,6 @@ class EGTASolver:
         Simulate all profiles in the reduced game.
         """
         for reduced_profile in self.reduced_profiles:
-            # if tuple(reduced_profile) != (3,1):
-                # for i, count in enumerate(reduced_profile):
-                #     if count == 0:
-                #         self.reduced_game[tuple(reduced_profile)].append(None)
-                #     else:
-                #         self.reduced_game[tuple(reduced_profile)].append(0)
-                # continue
-
             # Compute the corresponding profile in the original game.
             # original_profiles is a list of profiles, one for each deviating strategy.
             original_profiles = deviation_preserve_reduction(reduced_profile=reduced_profile,

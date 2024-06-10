@@ -6,9 +6,9 @@ import logging
 import numpy as np
 import random
 
-from envs.prepayment_net import create_env, Prepayment_Net
+from envs.prepayment_net import Prepayment_Net
 from classic_EGTA.egta_solver import EGTASolver
-from classic_EGTA.strategies import PREPAYMENT_STRATEGIES
+from strategies.strategies_prepayment import PREPAYMENT_STRATEGIES
 from classic_EGTA.evaluation_reduced import get_social_optimum, mixed_strategy_expected_payoffs
 
 

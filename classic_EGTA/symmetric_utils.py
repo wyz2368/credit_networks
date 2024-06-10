@@ -7,7 +7,7 @@ from classic_EGTA.nash_solvers.pygambit_solver import pygbt_solve_matrix_games
 
 def create_profiles(num_players, num_strategies):
     strategy_index = range(num_strategies)
-    # Generate all combinations of fruit choices for the given number of people
+    # Generate all combinations of choices for the given number of people
     combinations = product(strategy_index, repeat=num_players)
 
     ordered_list = []

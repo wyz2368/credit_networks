@@ -1,4 +1,4 @@
-from envs.net_generator import load_pkl
+from envs.net_generator_prepay import load_pkl
 
 def compute_max_sw(reduced_game):
     max_sw = -1000
