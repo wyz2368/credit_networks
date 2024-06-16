@@ -57,7 +57,7 @@ class Merge_Net(ParallelEnv):
                  utility_type="Bank_asset",
                  instance_path="./instances/merge/networks_10banks_1000ins.pkl",
                  sample_type="enum",
-                 verbose=True):
+                 verbose=False):
 
         self.num_banks = num_banks
         self.current_num_bank = self.num_banks

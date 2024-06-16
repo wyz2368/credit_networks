@@ -230,7 +230,7 @@ class EGTASolver:
 
             payoffs_over_original_profiles = []
             for original_profile in original_profiles:
-                print("---------------")
+                # print("---------------")
                 self.reset_stats()
                 averaged_rewards = self.simulation(original_profile)
 

@@ -32,7 +32,7 @@ flags.DEFINE_bool("is_eval", True, "Whether run a complete evaluation if True")
 
 
 # General
-flags.DEFINE_string("root_result_folder", 'root_result', "root directory of saved results")
+flags.DEFINE_string("root_result_folder", './root_result', "root directory of saved results")
 
 
 def init_logger(logger_name, checkpoint_dir):
