@@ -36,6 +36,8 @@ def find_vote_with_highest_weight(votes, weights):
     return max_weight_vote
 
 
+
+
 class Merge_Net(ParallelEnv):
     """
     The metadata holds environment constants.
@@ -57,7 +59,7 @@ class Merge_Net(ParallelEnv):
                  utility_type="Bank_asset",
                  instance_path="./instances/merge/networks_10banks_1000ins.pkl",
                  sample_type="enum",
-                 verbose=False):
+                 verbose=True):
 
         self.num_banks = num_banks
         self.current_num_bank = self.num_banks
@@ -239,11 +241,11 @@ class Merge_Net(ParallelEnv):
             current_shareholding[:, i] += current_shareholding[:, j]
 
             # Adjust params
-            current_params[:, i] *= self.params_decay
-            current_params[i, :] *= self.params_decay
-
-            current_params[:, i][current_params[:, i] < 1] = 1
-            current_params[i, :][current_params[i, :] < 1] = 1
+            self.params_adjust(params=current_params,
+                               i=i,
+                               j=j,
+                               x=current_external_assets[i],
+                               y=current_external_assets[j])
 
         # Remove j
         # Adjust external assets.
@@ -374,6 +376,20 @@ class Merge_Net(ParallelEnv):
         # x, y external assets
         # i, j two merged banks
         return (x + y) ** params[(i, j)]
+
+    def params_adjust(self, params, i, j, x, y):
+        """
+        Adjust the params between the new merged bank and others based on a weighted-based rule.
+        :return:
+        """
+        ratio_x = x / (x + y)
+        ratio_y = y / (x + y)
+
+        params[:, i] = ratio_x * params[:, i] + ratio_y * params[:, j]
+        params[i, :] = params[:, i]
+        params[i, i] = 0
+
+
 
     def split_utility(self, total_assets, shareholding):
         percentage_shareholding = shareholding / np.sum(shareholding, axis=0)

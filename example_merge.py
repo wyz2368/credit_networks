@@ -17,7 +17,7 @@ FLAGS = flags.FLAGS
 flags.DEFINE_string("game_name", "merge_game", "Game name.")
 flags.DEFINE_integer("num_shareholders", 10, "The number of shareholders.")
 flags.DEFINE_integer("num_banks", 10, "The number of banks.")
-flags.DEFINE_integer("sim_per_profile", 10, "The number of simulations per profile.")
+flags.DEFINE_integer("sim_per_profile", 1, "The number of simulations per profile.")
 flags.DEFINE_integer("reduce_num_players", 4, "The number of players in the reduced game.")
 flags.DEFINE_integer("num_rounds", 3, "The max number of time steps for truncation.")
 flags.DEFINE_float("default_cost", 0.5, "Default cost")
