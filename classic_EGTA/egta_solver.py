@@ -168,7 +168,7 @@ class EGTASolver:
         # When sample_type is "random", it returns an instance randomly sampled from the generator.
         non_empty_actions = []
         for i in range(self.sim_per_profile):
-            print("------ Sim {} -------".format(i))
+            # print("------ Sim {} -------".format(i))
             observations, infos = self.env.reset()
             # print("params:", observations["player_0"]["params"])
             traj_rewards = []
@@ -199,8 +199,8 @@ class EGTASolver:
                                                         observation=observation) # Raw int [1,2,3,4,5]
                         actions.append(vanilla_action)
 
-                print("Observation:", observations["player_0"])
-                print("actions:", actions)
+                # print("Observation:", observations["player_0"])
+                # print("actions:", actions)
 
                 observations, rewards, terminations, truncations, infos = self.env.step(actions, is_pure_symmetric(profile, 10))
                 traj_rewards.append([rewards[agent] for agent in self.env.possible_agents])
@@ -233,6 +233,8 @@ class EGTASolver:
                 # print("---------------")
                 self.reset_stats()
                 averaged_rewards = self.simulation(original_profile)
+
+                # print("rewards:", averaged_rewards)
 
                 payoffs = average_payoff_per_policy(average_result=averaged_rewards,
                                                     original_profile=original_profile)

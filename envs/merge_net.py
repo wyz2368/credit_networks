@@ -55,11 +55,10 @@ class Merge_Net(ParallelEnv):
                  num_rounds=1,
                  merge_cost_factor=0.1,
                  control_bonus_factor=0.2,
-                 params_decay=0.99, # decay of the parameter of functional form
                  utility_type="Bank_asset",
                  instance_path="./instances/merge/networks_10banks_1000ins.pkl",
                  sample_type="enum",
-                 verbose=True):
+                 verbose=False):
 
         self.num_banks = num_banks
         self.current_num_bank = self.num_banks
@@ -91,7 +90,6 @@ class Merge_Net(ParallelEnv):
         self.sample_type = sample_type
         self.merge_cost_factor = merge_cost_factor
         self.control_bonus_factor = control_bonus_factor
-        self.params_decay = params_decay  #The parameter used for decaying the params when multiple banks merge.
 
         self.stats = []
         self.verbose = verbose

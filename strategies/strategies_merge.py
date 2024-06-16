@@ -105,12 +105,14 @@ def max_potential_bank_strategy(player, observation):
     for i in holding_banks:
         max_potential_bank = np.argmax(sum_params)
         if i == max_potential_bank:
-            copy = np.copy(sum_params)
-            copy[i] = 0
-            second_highest = np.argmax(copy)
-            action[i] = second_highest
+            # copy = np.copy(sum_params)
+            # copy[i] = 0
+            # second_highest = np.argmax(copy)
+            # action[i] = second_highest
+            action[i] = -1
         else:
-            action[i] = max_potential_bank
+            action[i] = -1
+            # action[i] = max_potential_bank
 
     return action
 
@@ -438,6 +440,6 @@ MERGE_STRATEGIES = {
 # ids = shareholder_influence_strategy(player=2, observation=observation)
 # ids = mea_noop_strategy(player=0, observation=observation)
 
-ids = max_potential_bank_strategy(player=0, observation=observation)
-print(ids)
+# ids = max_potential_bank_strategy(player=0, observation=observation)
+# print(ids)
 

@@ -23,7 +23,6 @@ flags.DEFINE_integer("num_rounds", 3, "The max number of time steps for truncati
 flags.DEFINE_float("default_cost", 0.5, "Default cost")
 flags.DEFINE_float("merge_cost_factor", 0.05, "merge_cost_factor")
 flags.DEFINE_float("control_bonus_factor", 0.07, "control_bonus_factor")
-flags.DEFINE_float("params_decay", 0.99, "params_decay")
 flags.DEFINE_string("utility_type", "Bank_asset", "Options: Bank_asset, Bank_equity")
 flags.DEFINE_string("sample_type", "enum", "Options: random, enum")
 flags.DEFINE_string("instance_path", "../instances/merge/networks_merge10banks_1000ins_2070ext.pkl", "Path to instances.")
@@ -60,7 +59,6 @@ def logging_game_info(logger):
     logger.info("default_cost: {}".format(FLAGS.default_cost))
     logger.info("merge_cost_factor: {}".format(FLAGS.merge_cost_factor))
     logger.info("control_bonus_factor: {}".format(FLAGS.control_bonus_factor))
-    logger.info("params_decay: {}".format(FLAGS.params_decay))
     logger.info("sample_type: {}".format(FLAGS.sample_type))
     logger.info("utility_type: {}".format(FLAGS.utility_type))
     logger.info("instance_path: {}".format(FLAGS.instance_path))
@@ -123,7 +121,6 @@ def main(argv):
                                    default_cost=FLAGS.default_cost,
                                    merge_cost_factor=FLAGS.merge_cost_factor,
                                    control_bonus_factor=FLAGS.control_bonus_factor,
-                                   params_decay=FLAGS.params_decay,
                                    num_rounds=FLAGS.num_rounds,
                                    utility_type=FLAGS.utility_type,
                                    instance_path=FLAGS.instance_path,
