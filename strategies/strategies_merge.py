@@ -297,12 +297,12 @@ MERGE_STRATEGIES = {
     "max_external_assets_strategy": max_external_assets_strategy,
     "reduced_liability_strategy": reduced_liability_strategy,
     "shareholder_influence_strategy": shareholder_influence_strategy,
-    # "mea_noop_strategy": mea_noop_strategy,
-    # "rl_noop_strategy": rl_noop_strategy,
-    # "mea_rl_strategy": mea_rl_strategy,
-    # "rl_mea_strategy": rl_mea_strategy,
-    # "mea_si_strategy": mea_si_strategy,
-    # "rl_si_strategy": rl_si_strategy
+    "mea_noop_strategy": mea_noop_strategy,
+    "rl_noop_strategy": rl_noop_strategy,
+    "mea_rl_strategy": mea_rl_strategy,
+    "rl_mea_strategy": rl_mea_strategy,
+    "mea_si_strategy": mea_si_strategy,
+    "rl_si_strategy": rl_si_strategy
 }
 
 
