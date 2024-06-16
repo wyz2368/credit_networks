@@ -10,7 +10,6 @@ instance_path_list = ["./instances/merge/networks_merge10banks_1000ins_2070ext.p
 root_result_folder_list = ["experiments_initial"]
 merge_cost_factor_list = [0.05]
 control_bonus_factor_list = [0.07]
-params_decay_list = [0.99]
 file_name = "../runbatch01.sh"
 
 # Generate the bash script content
@@ -25,19 +24,17 @@ for sim_per_profile in sim_per_profile_list:
                         for root_result_folder in root_result_folder_list:
                             for merge_cost_factor in merge_cost_factor_list:
                                 for control_bonus_factor in control_bonus_factor_list:
-                                    for params_decay in params_decay_list:
-                                        bash_script_content += (
-                                            f"python example_merge.py --sim_per_profile {sim_per_profile} "
-                                            f"--default_cost {default_cost} "
-                                            f"--utility_type {utility_type} "
-                                            f"--is_eval {is_eval} "
-                                            f"--num_rounds {num_rounds} "
-                                            f"--instance_path {instance_path} "
-                                            f"--root_result_folder {root_result_folder} "
-                                            f"--merge_cost_factor {merge_cost_factor} "
-                                            f"--control_bonus_factor {control_bonus_factor} "
-                                            f"--params_decay {params_decay} && \\\n"
-                                        )
+                                    bash_script_content += (
+                                        f"python example_merge.py --sim_per_profile {sim_per_profile} "
+                                        f"--default_cost {default_cost} "
+                                        f"--utility_type {utility_type} "
+                                        f"--is_eval {is_eval} "
+                                        f"--num_rounds {num_rounds} "
+                                        f"--instance_path {instance_path} "
+                                        f"--root_result_folder {root_result_folder} "
+                                        f"--merge_cost_factor {merge_cost_factor} "
+                                        f"--control_bonus_factor {control_bonus_factor}  && \\\n"
+                                    )
 
 # Remove the last '&& \\' from the script content
 bash_script_content = bash_script_content.rstrip(' && \\\n')
