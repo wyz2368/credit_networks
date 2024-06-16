@@ -64,8 +64,11 @@ def reduced_liability_strategy(player, observation):
     holding_banks = np.where(shareholding[player, :] > 0)[0]
     action = np.zeros(num_banks) - 2
     for i in holding_banks:
-        biggest_lender = np.argmax(observation["adj"][i, :])
-        action[i] = biggest_lender
+        if np.all(observation["adj"][i, :] == 0):
+            action[i] = -1
+        else:
+            biggest_lender = np.argmax(observation["adj"][i, :])
+            action[i] = biggest_lender
 
     return action
 
@@ -84,6 +87,8 @@ def shareholder_influence_strategy(player, observation):
             highest_holding = np.argmax(player_shareholding_after_merger)
             if highest_holding == player:
                 action[i] = j
+            else:
+                action[i] = -1
 
     return action
 
@@ -128,8 +133,11 @@ def rl_noop_strategy(player, observation, mu=0, sigma=5):
         liability = np.squeeze(observation["adj"][i, :])
         external_asset = observation["external_asset"][i]
         if np.sum(incoming_payment) + external_asset < np.sum(liability):
-            biggest_lender = np.argmax(observation["adj"][i, :])
-            action[i] = biggest_lender
+            if np.all(observation["adj"][i, :] == 0):
+                action[i] = -1
+            else:
+                biggest_lender = np.argmax(observation["adj"][i, :])
+                action[i] = biggest_lender
         else:
             action[i] = -1
 
@@ -163,8 +171,11 @@ def mea_rl_strategy(player, observation, mu=0, sigma=5):
 
             action[i] = np.argmax(combined_external_assets)
         else:
-            biggest_lender = np.argmax(observation["adj"][i, :])
-            action[i] = biggest_lender
+            if np.all(observation["adj"][i, :] == 0):
+                action[i] = -1
+            else:
+                biggest_lender = np.argmax(observation["adj"][i, :])
+                action[i] = biggest_lender
 
     return action
 
@@ -183,8 +194,11 @@ def rl_mea_strategy(player, observation, mu=0, sigma=5):
         liability = np.squeeze(observation["adj"][i, :])
         external_asset = observation["external_asset"][i]
         if np.sum(incoming_payment) + external_asset < np.sum(liability):
-            biggest_lender = np.argmax(observation["adj"][i, :])
-            action[i] = biggest_lender
+            if np.all(observation["adj"][i, :] == 0):
+                action[i] = -1
+            else:
+                biggest_lender = np.argmax(observation["adj"][i, :])
+                action[i] = biggest_lender
         else:
             combined_external_assets = []
             for j in range(num_banks):
@@ -237,6 +251,8 @@ def mea_si_strategy(player, observation, mu=0, sigma=5):
                 highest_holding = np.argmax(player_shareholding_after_merger)
                 if highest_holding == player:
                     action[i] = j
+                else:
+                    action[i] = -1
 
     return action
 
@@ -252,8 +268,11 @@ def rl_si_strategy(player, observation, mu=0, sigma=5):
         liability = np.squeeze(observation["adj"][i, :])
         external_asset = observation["external_asset"][i]
         if np.sum(incoming_payment) + external_asset < np.sum(liability):
-            biggest_lender = np.argmax(observation["adj"][i, :])
-            action[i] = biggest_lender
+            if np.all(observation["adj"][i, :] == 0):
+                action[i] = -1
+            else:
+                biggest_lender = np.argmax(observation["adj"][i, :])
+                action[i] = biggest_lender
         else:
             for j in range(num_banks):
                 if i == j:
@@ -264,6 +283,8 @@ def rl_si_strategy(player, observation, mu=0, sigma=5):
                 highest_holding = np.argmax(player_shareholding_after_merger)
                 if highest_holding == player:
                     action[i] = j
+                else:
+                    action[i] = -1
 
     return action
 
@@ -276,12 +297,12 @@ MERGE_STRATEGIES = {
     "max_external_assets_strategy": max_external_assets_strategy,
     "reduced_liability_strategy": reduced_liability_strategy,
     "shareholder_influence_strategy": shareholder_influence_strategy,
-    "mea_noop_strategy": mea_noop_strategy,
-    "rl_noop_strategy": rl_noop_strategy,
-    "mea_rl_strategy": mea_rl_strategy,
-    "rl_mea_strategy": rl_mea_strategy,
-    "mea_si_strategy": mea_si_strategy,
-    "rl_si_strategy": rl_si_strategy
+    # "mea_noop_strategy": mea_noop_strategy,
+    # "rl_noop_strategy": rl_noop_strategy,
+    # "mea_rl_strategy": mea_rl_strategy,
+    # "rl_mea_strategy": rl_mea_strategy,
+    # "mea_si_strategy": mea_si_strategy,
+    # "rl_si_strategy": rl_si_strategy
 }
 
 

@@ -112,7 +112,7 @@ class EGTASolver:
         self.full_symmetric_game = {}
         for profile in full_game_profiles:
             self.full_symmetric_game[tuple(profile)] = []
-        self.game_stats = self.init_reduced_game_stats(full_game_profiles)
+        self.game_stats = self.init_reduced_game(full_game_profiles)
 
     def init_reduced_game(self, profiles):
         """
@@ -168,10 +168,13 @@ class EGTASolver:
         # When sample_type is "random", it returns an instance randomly sampled from the generator.
         non_empty_actions = []
         for i in range(self.sim_per_profile):
+            # print("------ Sim {} -------".format(i))
             observations, infos = self.env.reset()
+            # print("params:", observations["player_0"]["params"])
             traj_rewards = []
             k = 0
             while self.env.agents:
+                # print(k, "observation", observations["player_1"]["shareholding"])
                 k += 1
                 if binary_action_flag:
                     actions = {}
@@ -196,6 +199,9 @@ class EGTASolver:
                                                         observation=observation) # Raw int [1,2,3,4,5]
                         actions.append(vanilla_action)
 
+                # print("Observation:", observations["player_0"])
+                # print("actions:", actions)
+
                 observations, rewards, terminations, truncations, infos = self.env.step(actions, is_pure_symmetric(profile, 10))
                 traj_rewards.append([rewards[agent] for agent in self.env.possible_agents])
             # Sum of immediate rewards, not discounted.
@@ -214,6 +220,8 @@ class EGTASolver:
         Simulate all profiles in the reduced game.
         """
         for reduced_profile in self.reduced_profiles:
+            # print("==================================================")
+            # print("Current Reduced Profile:", reduced_profile)
             # Compute the corresponding profile in the original game.
             # original_profiles is a list of profiles, one for each deviating strategy.
             original_profiles = deviation_preserve_reduction(reduced_profile=reduced_profile,
@@ -222,6 +230,7 @@ class EGTASolver:
 
             payoffs_over_original_profiles = []
             for original_profile in original_profiles:
+                print("---------------")
                 self.reset_stats()
                 averaged_rewards = self.simulation(original_profile)
 

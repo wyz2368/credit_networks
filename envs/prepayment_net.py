@@ -148,8 +148,8 @@ class Prepayment_Net(ParallelEnv):
 
 
     def apply_actions(self, adj_matrix, external_assets, actions):
-        new_external_assets = external_assets[:]
-        new_adj_matrix = adj_matrix[:]
+        new_external_assets = np.copy(external_assets)
+        new_adj_matrix = np.copy(adj_matrix)
         for player_name, action in actions.items():
             player = self.agent_name_mapping[player_name]
             feasible_set = np.where(action == 1)[0]
@@ -229,9 +229,9 @@ class Prepayment_Net(ParallelEnv):
                 rewards[agent] = stat[self.utility_type][i]
 
             if env_truncation:
-                terminations = {agent: False for agent in self.agents}
-            else:
                 terminations = {agent: True for agent in self.agents}
+            else:
+                terminations = {agent: False for agent in self.agents}
 
             observations = self.state
 

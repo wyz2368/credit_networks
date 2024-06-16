@@ -8,22 +8,25 @@ import random
 
 from envs.merge_net import Merge_Net
 from classic_EGTA.egta_solver import EGTASolver
-from strategies.strategies_prepayment import PREPAYMENT_STRATEGIES
+from strategies.strategies_merge import MERGE_STRATEGIES
 from classic_EGTA.evaluation_reduced import get_social_optimum, mixed_strategy_expected_payoffs
 
 
 FLAGS = flags.FLAGS
 # Game-related
 flags.DEFINE_string("game_name", "merge_game", "Game name.")
-flags.DEFINE_integer("num_banks", 10, "The number of players.")
-flags.DEFINE_integer("sim_per_profile", 100, "The number of simulations per profile.")
+flags.DEFINE_integer("num_shareholders", 10, "The number of shareholders.")
+flags.DEFINE_integer("num_banks", 10, "The number of banks.")
+flags.DEFINE_integer("sim_per_profile", 10, "The number of simulations per profile.")
 flags.DEFINE_integer("reduce_num_players", 4, "The number of players in the reduced game.")
-flags.DEFINE_integer("num_rounds", 10, "The max number of time steps for truncation.")
-flags.DEFINE_float("default_cost", 0.1, "Default cost")
-flags.DEFINE_float("merge_cost_factor", 0.1, "merge_cost_factor")
+flags.DEFINE_integer("num_rounds", 3, "The max number of time steps for truncation.")
+flags.DEFINE_float("default_cost", 0.5, "Default cost")
+flags.DEFINE_float("merge_cost_factor", 0.05, "merge_cost_factor")
+flags.DEFINE_float("control_bonus_factor", 0.07, "control_bonus_factor")
+flags.DEFINE_float("params_decay", 0.99, "params_decay")
 flags.DEFINE_string("utility_type", "Bank_asset", "Options: Bank_asset, Bank_equity")
 flags.DEFINE_string("sample_type", "enum", "Options: random, enum")
-flags.DEFINE_string("instance_path", "../instances/networks_10banks_436better_ins_4070ext.pkl", "Path to instances.")
+flags.DEFINE_string("instance_path", "../instances/merge/networks_merge10banks_1000ins_2070ext.pkl", "Path to instances.")
 flags.DEFINE_bool("is_eval", True, "Whether run a complete evaluation if True")
 
 
@@ -44,16 +47,20 @@ def init_logger(logger_name, checkpoint_dir):
 
 
 def init_strategies():
-     return list(PREPAYMENT_STRATEGIES.values())
+     return list(MERGE_STRATEGIES.values())
 
 
 def logging_game_info(logger):
     logger.info("game_name: {}".format(FLAGS.game_name))
+    logger.info("num_shareholders: {}".format(FLAGS.num_shareholders))
     logger.info("num_banks: {}".format(FLAGS.num_banks))
     logger.info("sim_per_profile: {}".format(FLAGS.sim_per_profile))
     logger.info("reduce_num_players: {}".format(FLAGS.reduce_num_players))
     logger.info("num_rounds: {}".format(FLAGS.num_rounds))
     logger.info("default_cost: {}".format(FLAGS.default_cost))
+    logger.info("merge_cost_factor: {}".format(FLAGS.merge_cost_factor))
+    logger.info("control_bonus_factor: {}".format(FLAGS.control_bonus_factor))
+    logger.info("params_decay: {}".format(FLAGS.params_decay))
     logger.info("sample_type: {}".format(FLAGS.sample_type))
     logger.info("utility_type: {}".format(FLAGS.utility_type))
     logger.info("instance_path: {}".format(FLAGS.instance_path))
@@ -112,12 +119,15 @@ def main(argv):
 
     # Load game. This should be adaptive to different environments.
     prepayment_network = Merge_Net(num_banks=FLAGS.num_banks,
-                                    default_cost=FLAGS.default_cost,
-                                    num_rounds=FLAGS.num_rounds,
-                                    utility_type=FLAGS.utility_type,
-                                    instance_path=FLAGS.instance_path,
-                                    sample_type=FLAGS.sample_type,
-                                    merge_cost_factor=FLAGS.merge_cost_factor)
+                                   num_shareholders=FLAGS.num_shareholders,
+                                   default_cost=FLAGS.default_cost,
+                                   merge_cost_factor=FLAGS.merge_cost_factor,
+                                   control_bonus_factor=FLAGS.control_bonus_factor,
+                                   params_decay=FLAGS.params_decay,
+                                   num_rounds=FLAGS.num_rounds,
+                                   utility_type=FLAGS.utility_type,
+                                   instance_path=FLAGS.instance_path,
+                                   sample_type=FLAGS.sample_type)
     env = prepayment_network
 
     # Set up working directory.

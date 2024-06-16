@@ -9,13 +9,10 @@ from collections import defaultdict
 from envs.net_generator_prepay import load_pkl
 
 import numpy as np
-from gymnasium.spaces import MultiBinary, Dict, Box
+from gymnasium.spaces import Discrete, Dict, Box
 
 from pettingzoo import ParallelEnv
 from classic_EGTA.clearing import clearing
-
-
-#TODO: Add control bonus.
 
 
 def find_vote_with_highest_weight(votes, weights):
@@ -29,6 +26,10 @@ def find_vote_with_highest_weight(votes, weights):
 
     if -2 in vote_weight_map:
         del vote_weight_map[-2]
+
+    if len(vote_weight_map) == 0:
+        print("votes:", votes)
+        raise ValueError("All -2 actions")
 
     max_weight_vote = max(vote_weight_map.items(), key=lambda item: item[1])[0]
 
@@ -52,10 +53,11 @@ class Merge_Net(ParallelEnv):
                  num_rounds=1,
                  merge_cost_factor=0.1,
                  control_bonus_factor=0.2,
-                 params_decay=0.95, # decay of the parameter of functional form
+                 params_decay=0.99, # decay of the parameter of functional form
                  utility_type="Bank_asset",
                  instance_path="./instances/merge/networks_10banks_1000ins.pkl",
-                 sample_type="enum"):
+                 sample_type="enum",
+                 verbose=True):
 
         self.num_banks = num_banks
         self.current_num_bank = self.num_banks
@@ -70,12 +72,12 @@ class Merge_Net(ParallelEnv):
         )
 
         # Spaces.
-        self._action_spaces = {agent: MultiBinary(self.num_players) for agent in self.possible_agents}
+        self._action_spaces = {agent: Discrete(self.num_banks + 2, start=-2) for agent in self.possible_agents}
         self._observation_spaces = {
             agent: Dict({"adj": Box(low=self.low_payment, high=self.high_payment, shape=(self.current_num_bank, self.current_num_bank)),
                      "external_asset": Box(low=self.low_payment, high=self.high_payment, shape=(1, self.current_num_bank)),
-                     "params": Box(low=0.5, high=1.5, shape=(self.current_num_bank, self.current_num_bank)),
-                     "shareholding": Box(low=0, high=1, shape=(self.current_num_bank, self.current_num_bank))}) for agent in self.possible_agents
+                     "params": Box(low=1, high=1.1, shape=(self.current_num_bank, self.current_num_bank)),
+                     "shareholding": Box(low=0, high=1000, shape=(self.current_num_bank, self.current_num_bank))}) for agent in self.possible_agents
         }
 
         # Networks
@@ -87,12 +89,11 @@ class Merge_Net(ParallelEnv):
         self.sample_type = sample_type
         self.merge_cost_factor = merge_cost_factor
         self.control_bonus_factor = control_bonus_factor
-
+        self.params_decay = params_decay  #The parameter used for decaying the params when multiple banks merge.
 
         self.stats = []
+        self.verbose = verbose
 
-        # The parameter used for decaying the params when multiple banks merge.
-        self.params_decay = params_decay
 
     def observation_space(self, agent):
         # The observation space include: external assets, liability, params, shareholding ratio.
@@ -102,7 +103,7 @@ class Merge_Net(ParallelEnv):
                      "shareholding": Box(low=0, high=1, shape=(self.num_players, self.current_num_bank))})
 
     def action_space(self, agent):
-        return MultiBinary(self.num_players)
+        return Discrete(self.num_banks + 2, start=-2)
 
     def sample_network(self):
         if self.sample_type == "random":
@@ -118,10 +119,11 @@ class Merge_Net(ParallelEnv):
         self.agents = self.possible_agents[:]
         self.num_moves = 0
         self.current_network = self.sample_network()
-        observation = Dict({"adj": self.current_network["adj"],
-                            "external_asset": self.current_network["external_asset"],
-                            "params": self.current_network["params"],
-                            "shareholding": self.current_network["shareholding"]})
+
+        observation = {"adj": self.current_network["adj"],
+                       "external_asset": self.current_network["external_asset"],
+                       "params": self.current_network["params"],
+                       "shareholding": self.current_network["shareholding"]}
 
         observations = {agent: observation for agent in self.agents} # This assumes complete information and can be overloaded.
         infos = {agent: {} for agent in self.agents}
@@ -157,11 +159,12 @@ class Merge_Net(ParallelEnv):
         # An action is a list of length of banks. The index is the bank id of the shareholder,
         # the value is the merged bank id.
 
-        current_external_assets = observation["external_asset"][:]
-        current_adj_matrix = observation["adj"][:]
-        current_params = observation["params"][:]
-        current_shareholding = observation["shareholding"][:]
+        current_external_assets = np.copy(observation["external_asset"])
+        current_adj_matrix = np.copy(observation["adj"])
+        current_params = np.copy(observation["params"])
+        current_shareholding = np.copy(observation["shareholding"])
         all_votes = actions
+        # print("all_votes", all_votes)
 
         # Get bank actions.
         bank_actions = [] # -1：No vote, -2: Not a shareholder
@@ -186,15 +189,39 @@ class Merge_Net(ParallelEnv):
                     selected_banks.add(i)
                     selected_banks.add(j)
 
+        if self.verbose:
+            if len(merged_banks) == 0:
+                print("NO MERGE!#########################################################")
+            else:
+                print("MERGE!***********************************************************", merged_banks)
+
+        refused_pairs = []
+
         # Rule of merging banks: reducing the dimension of adj_matrix, external assets, shareholding
         # by designating i as the merged bank and j as the removed bank.
         for i, j in merged_banks:
             # Adjust external assets.
-            current_external_assets[i] = self.relationship_function(params=current_params,
+            new_external_asset = self.relationship_function(params=current_params,
                                                                     i=i,
                                                                     j=j,
                                                                     x=current_external_assets[i],
                                                                     y=current_external_assets[j])
+
+            total_asset_with_claims = np.sum(current_adj_matrix[:, i]) + current_external_assets[i] + np.sum(
+                current_adj_matrix[:, j]) + current_external_assets[j]
+            if new_external_asset - self.merge_cost_factor * total_asset_with_claims < 0:
+                # Refuse the merger.
+                removed_banks.remove(j)
+                refused_pairs.append((i, j))
+                if self.verbose:
+                    print("REFUSE THE MERGER.", (i, j))
+                continue
+            else:
+                current_external_assets[i] = new_external_asset
+                current_external_assets[i] -= self.merge_cost_factor * total_asset_with_claims
+                if self.verbose:
+                    print("ACCEPT THE MERGER.", (i, j))
+
 
             # Adjust payment matrix.
             for bank in range(self.current_num_banks):
@@ -202,8 +229,11 @@ class Merge_Net(ParallelEnv):
                     continue
                 elif bank == j:
                     current_adj_matrix[bank, i] = 0
+                    current_adj_matrix[i, bank] = 0
                 else:
                     current_adj_matrix[bank, i] += current_adj_matrix[bank, j]
+                    current_adj_matrix[i, bank] += current_adj_matrix[j, bank]
+
 
             # Adjust shareholding.
             current_shareholding[:, i] += current_shareholding[:, j]
@@ -211,6 +241,9 @@ class Merge_Net(ParallelEnv):
             # Adjust params
             current_params[:, i] *= self.params_decay
             current_params[i, :] *= self.params_decay
+
+            current_params[:, i][current_params[:, i] < 1] = 1
+            current_params[i, :][current_params[i, :] < 1] = 1
 
         # Remove j
         # Adjust external assets.
@@ -221,7 +254,7 @@ class Merge_Net(ParallelEnv):
         current_params = np.delete(current_params, removed_banks, axis=0)
         current_params = np.delete(current_params, removed_banks, axis=1)
 
-        self.current_num_banks -= len(merged_banks)
+        self.current_num_banks -= len(merged_banks) + len(refused_pairs)
 
         new_observation = {}
         new_observation["adj"] = current_adj_matrix
@@ -229,7 +262,12 @@ class Merge_Net(ParallelEnv):
         new_observation["params"] = current_params
         new_observation["shareholding"] = current_shareholding
 
-        return new_observation
+        if len(merged_banks) == len(refused_pairs):
+            early_termination = True
+        else:
+            early_termination = False
+
+        return new_observation, early_termination
 
 
     def clearing(self, external_assets, adj_matrix):
@@ -271,7 +309,6 @@ class Merge_Net(ParallelEnv):
         observation = self.state[self.agents[0]]
         adj_m = observation["adj"]
         external_assets = observation["external_asset"]
-        params = observation["params"]
         shareholding = observation["shareholding"]
         actions = np.array(actions)
         all_zeros = self.check_no_actions(actions)
@@ -280,12 +317,14 @@ class Merge_Net(ParallelEnv):
         env_truncation = self.num_moves > self.num_rounds
         truncations = {agent: env_truncation for agent in self.agents}
 
-        if all_zeros or env_truncation:
+        # Pull up the apply_action earlier to create the early termination if the only merger was rejected.
+        new_observation, early_termination = self.apply_actions(observation, actions)
+
+        if all_zeros or env_truncation or early_termination:
             assert np.all(external_assets >= 0)
             stat = self.clearing(external_assets=external_assets, adj_matrix=adj_m)
             self.stats.append(stat)
 
-            #TODO: check the reward structure
             rewards = {}
             utilities_from_banks = self.split_utility(total_assets=stat[self.utility_type],
                                                       shareholding=shareholding)
@@ -296,15 +335,14 @@ class Merge_Net(ParallelEnv):
             for i, agent in enumerate(self.agents):
                 rewards[agent] = utilities_from_banks[i] + control_bonus[i]
 
-            if env_truncation:
-                terminations = {agent: False for agent in self.agents}
-            else:
+            if env_truncation or early_termination:
                 terminations = {agent: True for agent in self.agents}
+            else:
+                terminations = {agent: False for agent in self.agents}
 
             observations = self.state
 
         else:
-            new_observation = self.apply_actions(observation, actions)
 
             rewards = {}
             for agent in self.agents:
@@ -324,7 +362,7 @@ class Merge_Net(ParallelEnv):
         # still be an entry for each agent
         infos = {agent: {} for agent in self.agents}
 
-        if env_truncation or all_zeros:
+        if env_truncation or all_zeros or early_termination:
             self.agents = []
 
         return observations, rewards, terminations, truncations, infos
