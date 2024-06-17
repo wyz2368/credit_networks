@@ -398,10 +398,10 @@ MERGE_STRATEGIES = {
     "rl_noop_strategy": rl_noop_strategy,
     "mea_rl_strategy": mea_rl_strategy,
     "rl_mea_strategy": rl_mea_strategy,
-    "mea_si_strategy": mea_si_strategy,
-    "rl_si_strategy": rl_si_strategy,
-    "rl_mp_strategy": rl_mp_strategy,
-    "mea_mp_strategy": mea_mp_strategy,
+    # "mea_si_strategy": mea_si_strategy,
+    # "rl_si_strategy": rl_si_strategy,
+    # "rl_mp_strategy": rl_mp_strategy,
+    # "mea_mp_strategy": mea_mp_strategy,
 }
 
 
