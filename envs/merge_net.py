@@ -16,6 +16,9 @@ from classic_EGTA.clearing import clearing
 
 
 def find_vote_with_highest_weight(votes, weights):
+    """
+    Majority votes within a firm.
+    """
     if len(votes) != len(weights):
         raise ValueError("Votes and weights must be of the same length.")
 
@@ -73,7 +76,8 @@ class Merge_Net(ParallelEnv):
         )
 
         # Spaces.
-        self._action_spaces = {agent: Discrete(self.num_banks + 2, start=-2) for agent in self.possible_agents}
+        #-3: always accept, -2: no control of a firm, -1: votes for no.
+        self._action_spaces = {agent: Discrete(self.num_banks + 3, start=-3) for agent in self.possible_agents}
         self._observation_spaces = {
             agent: Dict({"adj": Box(low=self.low_payment, high=self.high_payment, shape=(self.current_num_bank, self.current_num_bank)),
                      "external_asset": Box(low=self.low_payment, high=self.high_payment, shape=(1, self.current_num_bank)),
@@ -103,7 +107,7 @@ class Merge_Net(ParallelEnv):
                      "shareholding": Box(low=0, high=1, shape=(self.num_players, self.current_num_bank))})
 
     def action_space(self, agent):
-        return Discrete(self.num_banks + 2, start=-2)
+        return Discrete(self.num_banks + 3, start=-3)
 
     def sample_network(self):
         if self.sample_type == "random":
@@ -164,10 +168,10 @@ class Merge_Net(ParallelEnv):
         current_params = np.copy(observation["params"])
         current_shareholding = np.copy(observation["shareholding"])
         all_votes = actions
-        # print("all_votes", all_votes)
+        # print("all_votes", all_votes, type(all_votes))
 
         # Get bank actions.
-        bank_actions = [] # -1：No vote, -2: Not a shareholder
+        bank_actions = [] # -1：No vote, -2: Not a shareholder, -3: always accept
         for bank in range(self.current_num_banks):
             shares = current_shareholding[:, bank]
             votes = all_votes[:, bank]
@@ -183,7 +187,9 @@ class Merge_Net(ParallelEnv):
             for j in range(i+1, len(bank_actions)):
                 if j in selected_banks:
                     continue
-                if bank_actions[i] == j and bank_actions[j] == i:
+                if (bank_actions[i] == j and bank_actions[j] == i) or \
+                        (bank_actions[i] == j and bank_actions[j] == -3) or \
+                        (bank_actions[i] == -3 and bank_actions[j] == i): # Remove all = -3 cases since merge should be initiated by a firm.
                     merged_banks.append((i, j))
                     removed_banks.append(j)
                     selected_banks.add(i)

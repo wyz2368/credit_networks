@@ -207,9 +207,11 @@ class EGTASolver:
             # Sum of immediate rewards, not discounted.
             if k > 1:
                 non_empty_actions.append(i)
+
             averaged_rewards.append(np.sum(traj_rewards, axis=0))
 
         # Average over instances.
+        # print("non_empty_actions:", non_empty_actions)
         # print(averaged_rewards)
         # save_pkl(averaged_rewards, path=self.checkpoint_dir + "/averaged_rewards.pkl")
         # save_pkl(non_empty_actions, path=self.checkpoint_dir + "/valid_ins_idx.pkl")
