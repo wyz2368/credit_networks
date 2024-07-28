@@ -8,7 +8,7 @@ import random
 
 from envs.merge_net import Merge_Net
 from classic_EGTA.egta_solver import EGTASolver
-from strategies.strategies_merge import MERGE_STRATEGIES
+from strategies.strategies_merge_v2 import MERGE_STRATEGIES
 from classic_EGTA.evaluation_reduced import get_social_optimum, mixed_strategy_expected_payoffs
 
 
@@ -17,9 +17,9 @@ FLAGS = flags.FLAGS
 flags.DEFINE_string("game_name", "merge_game", "Game name.")
 flags.DEFINE_integer("num_shareholders", 10, "The number of shareholders.")
 flags.DEFINE_integer("num_banks", 10, "The number of banks.")
-flags.DEFINE_integer("sim_per_profile", 1, "The number of simulations per profile.")
+flags.DEFINE_integer("sim_per_profile", 500, "The number of simulations per profile.")
 flags.DEFINE_integer("reduce_num_players", 4, "The number of players in the reduced game.")
-flags.DEFINE_integer("num_rounds", 3, "The max number of time steps for truncation.")
+flags.DEFINE_integer("num_rounds", 5, "The max number of time steps for truncation.")
 flags.DEFINE_float("default_cost", 0.5, "Default cost")
 flags.DEFINE_float("merge_cost_factor", 0.05, "merge_cost_factor")
 flags.DEFINE_float("control_bonus_factor", 0.07, "control_bonus_factor")
