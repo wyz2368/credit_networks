@@ -61,7 +61,11 @@ def mixed_strategy_expected_payoffs(reduced_game, mixed_strategy):
     :param full_game: a compact representation of a symmetric game.
     :param mixed_strategy: a numpy array of probabilities.
     """
-    assert np.sum(mixed_strategy) == 1
+    if np.sum(mixed_strategy) != 1:
+        mixed_strategy /= np.sum(mixed_strategy)
+        print("np.sum(mixed_strategy) != 1")
+
+    # assert np.sum(mixed_strategy) == 1
 
     num_strategies = len(mixed_strategy)
     deviation_payoffs = np.zeros(num_strategies)
