@@ -224,17 +224,17 @@ MERGE_STRATEGIES = {
     # "reduced_liability_strategy07": rl_factory(gamma=0.7),
     # "reduced_liability_strategy09": rl_factory(gamma=0.9),
     # # SI
-    # "shareholder_influence_strategy01": si_factory(gamma=0.1),
+    "shareholder_influence_strategy01": si_factory(gamma=0.1),
     # "shareholder_influence_strategy03": si_factory(gamma=0.3),
     # "shareholder_influence_strategy05": si_factory(gamma=0.5),
     # "shareholder_influence_strategy07": si_factory(gamma=0.7),
     # "shareholder_influence_strategy09": si_factory(gamma=0.9),
     # # MP
     "max_potential_bank_strategy01": mp_facotry(gamma=0.1),
-    "max_potential_bank_strategy03": mp_facotry(gamma=0.3),
-    "max_potential_bank_strategy05": mp_facotry(gamma=0.5),
-    "max_potential_bank_strategy07": mp_facotry(gamma=0.7),
-    "max_potential_bank_strategy09": mp_facotry(gamma=0.9),
+    # "max_potential_bank_strategy03": mp_facotry(gamma=0.3),
+    # "max_potential_bank_strategy05": mp_facotry(gamma=0.5),
+    # "max_potential_bank_strategy07": mp_facotry(gamma=0.7),
+    # "max_potential_bank_strategy09": mp_facotry(gamma=0.9),
 }
 
 
